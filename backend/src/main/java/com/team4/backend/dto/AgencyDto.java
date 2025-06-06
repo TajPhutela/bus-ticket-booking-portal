@@ -1,4 +1,4 @@
-package com.team4.backend.entities;
+package com.team4.backend.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -6,9 +6,7 @@ import lombok.Value;
 
 import java.io.Serializable;
 
-/**
- * DTO for {@link Agency}
- */
+
 @Value
 public class AgencyDto implements Serializable {
     Integer id;
