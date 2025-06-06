@@ -1,5 +1,7 @@
-package com.team4.backend.entities;
+package com.team4.backend.mapper;
 
+import com.team4.backend.dto.AgencyDto;
+import com.team4.backend.entities.Agency;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
