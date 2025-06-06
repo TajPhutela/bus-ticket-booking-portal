@@ -1,6 +1,8 @@
 package com.team4.backend.controller;
 
+import com.team4.backend.dto.TripDto;
 import com.team4.backend.entities.Trip;
+import com.team4.backend.mapper.TripMapper;
 import com.team4.backend.repository.TripRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,23 +18,29 @@ import java.util.Optional;
 @RequestMapping("api/trips")
 public class TripController {
     private final TripRepository tripRepository;
+    private final TripMapper tripMapper;
 
-    public TripController(TripRepository tripRepository) {
+    public TripController(TripRepository tripRepository,
+                          TripMapper tripMapper) {
         this.tripRepository = tripRepository;
+        this.tripMapper = tripMapper;
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Trip>> getAllTrips() {
+    public ResponseEntity<List<TripDto>> getAllTrips() {
         List<Trip> trips = tripRepository.findAll();
 
-        return new ResponseEntity<>(trips, HttpStatus.OK);
+        List<TripDto> tripDtos = trips.stream().map(tripMapper::toDto).toList();
+
+        return new ResponseEntity<>(tripDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Trip> getTripById(@PathVariable int id) {
+    public ResponseEntity<TripDto> getTripById(@PathVariable int id) {
         Optional<Trip> trip = tripRepository.findById(id);
         if (trip.isPresent()) {
-            return new ResponseEntity<>(trip.get(), HttpStatus.OK);
+            TripDto tripDto = tripMapper.toDto(trip.get());
+            return new ResponseEntity<>(tripDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
