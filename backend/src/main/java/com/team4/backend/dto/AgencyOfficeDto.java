@@ -1,13 +1,11 @@
-package com.team4.backend.entities;
+package com.team4.backend.dto;
 
 import jakarta.validation.constraints.Size;
 import lombok.Value;
 
 import java.io.Serializable;
 
-/**
- * DTO for {@link AgencyOffice}
- */
+
 @Value
 public class AgencyOfficeDto implements Serializable {
     Integer id;
