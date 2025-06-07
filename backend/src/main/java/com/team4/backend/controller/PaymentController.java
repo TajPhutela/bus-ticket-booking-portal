@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.swing.text.DateFormatter;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,6 +68,18 @@ public class PaymentController {
         return ResponseEntity.ok(paymentDtos);
     }
 
+    @GetMapping("/amount/{amount}")
+    public ResponseEntity<List<PaymentDto>> getPaymentsByAmount(@PathVariable("amount") BigDecimal amount) {
+        List<Payment>payments = paymentRepository.findByAmount(amount);
+        List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(paymentDtos);
+    }
+    @GetMapping("/status/{payment_status}")
+    public ResponseEntity<List<PaymentDto>> getPaymentsByStatus(@PathVariable("payment_status") String paymentStatus) {
+        List<Payment>payments = paymentRepository.findByPaymentStatus(paymentStatus);
+        List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(paymentDtos);
+    }
 
 
 }
