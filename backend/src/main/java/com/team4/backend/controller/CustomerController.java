@@ -48,7 +48,7 @@ public class CustomerController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<List<CustomerDto>> getCustomerByName(@PathVariable String name) {
         List<Customer> customer = customerRepository.findByName(name);
 
@@ -59,7 +59,7 @@ public class CustomerController {
         List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
         return new ResponseEntity<>(customerDtos, HttpStatus.OK);
     }
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<List<CustomerDto>> getCustomerByEmail(@PathVariable String email) {
         List<Customer> customer = customerRepository.findByEmail(email);
 
@@ -70,9 +70,9 @@ public class CustomerController {
         List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
         return new ResponseEntity<>(customerDtos, HttpStatus.OK);
     }
-    @GetMapping("/{phoneNumber}")
+    @GetMapping("/phoneNumber/{phoneNumber}")
     public ResponseEntity<List<CustomerDto>> getCustomerByPhoneNumber(@PathVariable String phoneNumber) {
-        List<Customer> customer = customerRepository.findByPhoneNumber(phoneNumber);
+        List<Customer> customer = customerRepository.findByPhone(phoneNumber);
 
         if (customer.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -81,9 +81,9 @@ public class CustomerController {
         List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
         return new ResponseEntity<>(customerDtos, HttpStatus.OK);
     }
-    @GetMapping("/{address_id}")
+    @GetMapping("/addressId/{address_id}")
     public ResponseEntity<List<CustomerDto>> getCustomerByAddress(@PathVariable int address_id) {
-        List<Customer> customer = customerRepository.findByAddress(address_id);
+        List<Customer> customer = customerRepository.findByAddress_Id(address_id);
 
         if (customer.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
