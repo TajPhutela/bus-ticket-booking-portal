@@ -22,11 +22,14 @@ public class BusController {
     @Autowired
     private BusRepository busRepository;
 
+    @Autowired
+    private BusMapper busMapper;
+
     @GetMapping()
     public ResponseEntity<List<BusDto>> getAllBusesDetails(){
         List<Bus> buses = busRepository.findAll();
         List<BusDto> busDtos =  buses.stream()
-                .map(BusMapper::toDTO)
+                .map(busMapper::toDto)
                 .toList();
         return ResponseEntity.ok(busDtos);
     }
@@ -35,7 +38,7 @@ public class BusController {
     public ResponseEntity<BusDto> getBusById(@PathVariable int busId){
         Optional<Bus> result = busRepository.findById(busId);
         if(result.isPresent()){
-            BusDto busDto = BusMapper.toDTO(result.get());
+            BusDto busDto = busMapper.toDto(result.get());
             return ResponseEntity.ok(busDto);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
