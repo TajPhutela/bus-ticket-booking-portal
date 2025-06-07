@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/buses")
@@ -34,7 +35,7 @@ public class BusController {
         return ResponseEntity.ok(busDtos);
     }
 
-    @GetMapping("/{busId}")
+    @GetMapping("/id/{busId}")
     public ResponseEntity<BusDto> getBusById(@PathVariable int busId){
         Optional<Bus> result = busRepository.findById(busId);
         if(result.isPresent()){
@@ -44,6 +45,28 @@ public class BusController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @GetMapping("/capacity/{capacity}")
+    public ResponseEntity<List<BusDto>> getBusByCapacity(@PathVariable int capacity){
+       List<Bus> buses = busRepository.findByCapacity(capacity);
+       List<BusDto> busDtos = buses.stream().map(busMapper::toDto).toList();
+       return ResponseEntity.ok(busDtos);
+    }
 
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<BusDto>> getBusByType(@PathVariable String type){
+        List<Bus> buses = busRepository.findByType(type);
+        List<BusDto> busDtos = buses.stream().map(busMapper::toDto).toList();
+        return ResponseEntity.ok(busDtos);
+    }
+
+    @GetMapping("/registration-number/{registrationNumber}")
+    public ResponseEntity<BusDto> getBusByRegistrationNumber(@PathVariable String registrationNumber){
+        Optional<Bus> bus = busRepository.findByRegistrationNumber(registrationNumber);
+        if(bus.isPresent()){
+            BusDto busDto = busMapper.toDto(bus.get());
+            return ResponseEntity.ok(busDto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 
 }
