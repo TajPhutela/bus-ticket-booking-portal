@@ -2,7 +2,9 @@ package com.team4.backend.controller;
 
 
 
+import com.team4.backend.dto.PaymentDto;
 import com.team4.backend.entities.Payment;
+import com.team4.backend.mapper.PaymentMapper;
 import com.team4.backend.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/payment")
@@ -21,16 +24,26 @@ public class PaymentController {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private PaymentMapper paymentMapper;
+
+
+
     @GetMapping("")
-    public ResponseEntity<List<Payment>> getAllPayments() {
+    public ResponseEntity<List<PaymentDto>> getAllPayments() {
         List<Payment> payments = paymentRepository.findAll();
-        return ResponseEntity.ok(payments);
+        List<PaymentDto> paymentDtos = payments.stream()
+                .map(paymentMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(paymentDtos);
     }
 
+
     @GetMapping("/{payment_id}")
-    public ResponseEntity<Payment> getPaymentById(@PathVariable("payment_id") Integer paymentId) {
+    public ResponseEntity<PaymentDto> getPaymentById(@PathVariable("payment_id") Integer paymentId) {
         Optional<Payment> payment = paymentRepository.findById(paymentId);
-        return payment.map(ResponseEntity::ok)
+        return payment.map(paymentMapper::toDto)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
