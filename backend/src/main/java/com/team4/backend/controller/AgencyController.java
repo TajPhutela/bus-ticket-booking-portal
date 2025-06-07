@@ -63,16 +63,16 @@ public class AgencyController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/offices/email")
-    public List<AgencyOfficeDto> getOfficeEmails(@RequestParam String email) {
-        List<AgencyOffice> offices = agencyOfficeRepository.findByOfficeMail(email);
+    @GetMapping("/offices/email/{email}")
+    public List<AgencyOfficeDto> getOfficeEmails(@PathVariable("email") String emailId) {
+        List<AgencyOffice> offices = agencyOfficeRepository.findByOfficeMail(emailId);
         return offices.stream()
                 .map(agencyOfficeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/email")
-    public List<AgencyDto> getEmails(@RequestParam String email) {
+    @GetMapping("/email/{email}")
+    public List<AgencyDto> getEmails(@PathVariable("email") String email) {
         List<Agency> agencies = agencyRepository.findByEmail(email);
         return agencies.stream()
                 .map(agencyMapper::toDto)
