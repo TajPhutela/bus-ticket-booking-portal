@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface AgencyOfficeRepository extends JpaRepository<AgencyOffice, Long> {
     List<AgencyOffice> findByAgencyId(Integer agencyId);
+
+    List<AgencyOffice> findByOfficeMail(String officeMail);
+
 }
