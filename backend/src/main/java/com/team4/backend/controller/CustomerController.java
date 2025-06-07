@@ -2,8 +2,10 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.CustomerDto;
 import com.team4.backend.dto.ReviewDto;
+import com.team4.backend.dto.TripDto;
 import com.team4.backend.entities.Customer;
 import com.team4.backend.entities.Review;
+import com.team4.backend.entities.Trip;
 import com.team4.backend.mapper.CustomerMapper;
 import com.team4.backend.mapper.ReviewMapper;
 import com.team4.backend.repository.CustomerRepository;
@@ -44,5 +46,50 @@ public class CustomerController {
             return new ResponseEntity<>(customerDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<List<CustomerDto>> getCustomerByName(@PathVariable String name) {
+        List<Customer> customer = customerRepository.findByName(name);
+
+        if (customer.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+    }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<List<CustomerDto>> getCustomerByEmail(@PathVariable String email) {
+        List<Customer> customer = customerRepository.findByEmail(email);
+
+        if (customer.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+    }
+    @GetMapping("/phoneNumber/{phoneNumber}")
+    public ResponseEntity<List<CustomerDto>> getCustomerByPhoneNumber(@PathVariable String phoneNumber) {
+        List<Customer> customer = customerRepository.findByPhone(phoneNumber);
+
+        if (customer.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+    }
+    @GetMapping("/addressId/{address_id}")
+    public ResponseEntity<List<CustomerDto>> getCustomerByAddress(@PathVariable int address_id) {
+        List<Customer> customer = customerRepository.findByAddress_Id(address_id);
+
+        if (customer.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
     }
 }
