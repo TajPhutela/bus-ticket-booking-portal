@@ -9,14 +9,8 @@ import com.team4.backend.mapper.AgencyOfficeMapper;
 import com.team4.backend.repository.AgencyOfficeRepository;
 import com.team4.backend.repository.AgencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,9 +24,16 @@ public class AgencyController {
     private AgencyOfficeRepository agencyOfficeRepository;
     @Autowired
     private AgencyMapper agencyMapper;
-
     @Autowired
     private AgencyOfficeMapper agencyOfficeMapper;
+
+    @GetMapping("")
+    public List<AgencyDto> getAllAgencies() {
+        List<Agency> agencies = agencyRepository.findAll();
+        return agencies.stream()
+                .map(agencyMapper::toDto)
+                .collect(Collectors.toList());
+    }
 
     @GetMapping("/{id}")
     public AgencyDto getAgencyById(@PathVariable("id") Integer agencyId) {
@@ -40,11 +41,41 @@ public class AgencyController {
         return agency.map(agencyMapper::toDto).orElse(null);
     }
 
-    @GetMapping("/offices/{id}")
-    public List<AgencyOfficeDto> getOfficesByAgencyId(@PathVariable("id") Integer agencyId) {
+    @GetMapping("/offices/agencyid/{agency}")
+    public List<AgencyOfficeDto> getOfficesByAgencyId(@PathVariable("agency") Integer agencyId) {
         List<AgencyOffice> offices = agencyOfficeRepository.findByAgencyId(agencyId);
         return offices.stream()
                 .map(agencyOfficeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/offices/{id}")
+    public AgencyOfficeDto getOfficeById(@PathVariable("id") Long officeId) {
+        AgencyOffice office = agencyOfficeRepository.findById(officeId).get();
+        return agencyOfficeMapper.toDto(office);
+    }
+
+    @GetMapping("/offices")
+    public List<AgencyOfficeDto> getOffices() {
+        List<AgencyOffice> offices = agencyOfficeRepository.findAll();
+        return offices.stream()
+                .map(agencyOfficeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/offices/email")
+    public List<AgencyOfficeDto> getOfficeEmails(@RequestParam String email) {
+        List<AgencyOffice> offices = agencyOfficeRepository.findByOfficeMail(email);
+        return offices.stream()
+                .map(agencyOfficeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/email")
+    public List<AgencyDto> getEmails(@RequestParam String email) {
+        List<Agency> agencies = agencyRepository.findByEmail(email);
+        return agencies.stream()
+                .map(agencyMapper::toDto)
                 .collect(Collectors.toList());
     }
 }
