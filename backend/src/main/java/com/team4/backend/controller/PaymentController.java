@@ -3,6 +3,7 @@ package com.team4.backend.controller;
 
 
 import com.team4.backend.dto.PaymentDto;
+import com.team4.backend.entities.Booking;
 import com.team4.backend.entities.Payment;
 import com.team4.backend.mapper.PaymentMapper;
 import com.team4.backend.repository.PaymentRepository;
@@ -46,5 +47,21 @@ public class PaymentController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/customer/{customer_id}")
+    public ResponseEntity<List<PaymentDto>> getPaymentsByCustomerId(@PathVariable("customer_id") Integer customerId) {
+        List<Payment>payments = paymentRepository.findByCustomerId(customerId);
+        List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(paymentDtos);
+    }
+
+    @GetMapping("/booking/{booking_id}")
+    public ResponseEntity<List<PaymentDto>> getPaymentsByBookingId(@PathVariable("booking_id") Integer bookingId) {
+        List<Payment>payments = paymentRepository.findByBookingId(bookingId);
+        List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(paymentDtos);
+    }
+
+
 
 }
