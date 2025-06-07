@@ -10,11 +10,11 @@ import java.util.Optional;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Integer> {
-    Optional<Trip> findByRouteId(int routeId);
+    List<Trip> findByRouteId(int routeId);
 
-    Optional<Trip> findByBusId(int busId);
+    List<Trip> findByBusId(int busId);
 
-    Optional<Trip> findByTripDate(Instant tripDate);
+    List<Trip> findByTripDate(Instant tripDate);
 
     List<Trip> findByRoute_FromCity(String fromCity);
 
@@ -26,5 +26,5 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
 
     List<Trip> findByRoute_FromCityAndRoute_ToCityAndTripDate(String fromCity, String toCity, Instant tripDate);
 
-    List<Trip> findByRoute_FromCityAndRoute_ToCityAndBus_Type(String fromCity, String toCity, String bus_Type);
+    List<Trip> findByRoute_FromCityAndRoute_ToCityAndTripDateAndBus_Type(String fromCity, String toCity, Instant tripDate, String bus_Type);
 }
