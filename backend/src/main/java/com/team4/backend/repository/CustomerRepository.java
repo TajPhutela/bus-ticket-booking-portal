@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> findByName(String name);
     List<Customer> findByEmail(String email);
-    List<Customer> findByPhoneNumber(String phoneNumber);
-    List<Customer> findByAddress(int address_id);
+    List<Customer> findByPhone(String phoneNumber);
+    List<Customer> findByAddress_Id(int address_id);
 }
