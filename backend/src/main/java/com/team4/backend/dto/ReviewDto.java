@@ -12,3 +12,5 @@ import java.time.Instant;
 public record ReviewDto(Integer id, @NotNull Integer rating, String comment,
                         Instant reviewDate) implements Serializable {
 }
+
+
