@@ -1,5 +1,7 @@
 package com.team4.backend.dto;
 
+import com.team4.backend.entities.Booking;
+import com.team4.backend.entities.Customer;
 import com.team4.backend.entities.Payment;
 
 import java.io.Serializable;
