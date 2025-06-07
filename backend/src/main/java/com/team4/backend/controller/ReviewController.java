@@ -117,7 +117,7 @@ public class ReviewController {
 
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build(); // if date is not parsable
+            return ResponseEntity.badRequest().build();
         }
     }
 
