@@ -69,4 +69,11 @@ public class BusController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @GetMapping("/office-id/{officeId}")
+    public ResponseEntity<List<BusDto>> getBusByOfficeId(@PathVariable int officeId){
+         List<Bus> buses = busRepository.findByOfficeId(officeId);
+         List<BusDto> busDtos = buses.stream().map(busMapper::toDto).toList();
+         return ResponseEntity.ok(busDtos);
+    }
+
 }

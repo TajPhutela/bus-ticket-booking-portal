@@ -15,4 +15,6 @@ public interface BusRepository extends JpaRepository<Bus, Integer> {
     List<Bus> findByType(String type);
 
     Optional<Bus> findByRegistrationNumber(String registrationNumber);
+
+    List<Bus> findByOfficeId(Integer officeId);
 }
