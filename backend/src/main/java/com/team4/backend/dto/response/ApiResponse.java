@@ -20,6 +20,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>("success", 200, "Request successful", data);
     }
 
+    public static <T> ApiResponse<T> success(int code, String message, T data) {
+        return new ApiResponse<>("success", code, message, data);
+    }
+
     public static <T> ApiResponse<T> error(int code, String message) {
         return new ApiResponse<>("error", code, message, null);
     }
