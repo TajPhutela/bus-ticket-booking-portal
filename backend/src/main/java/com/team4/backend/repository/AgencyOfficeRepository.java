@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface AgencyOfficeRepository extends JpaRepository<AgencyOffice, Long> {
+public interface AgencyOfficeRepository extends JpaRepository<AgencyOffice, Integer> {
     List<AgencyOffice> findByAgencyId(Integer agencyId);
 
     List<AgencyOffice> findByOfficeMail(String officeMail);
