@@ -10,7 +10,17 @@ import java.time.Instant;
 /**
  * DTO for {@link Trip}
  */
-public record TripDto(Integer id, @NotNull Integer boardingAddressId, @NotNull Integer droppingAddressId,
-                      @NotNull Instant departureTime, @NotNull Instant arrivalTime, @NotNull Integer availableSeats,
-                      @NotNull BigDecimal fare, @NotNull Instant tripDate) implements Serializable {
-}
+public record TripDto(
+        Integer id,
+        @NotNull Integer routeId,
+        @NotNull Integer busId,
+        @NotNull Integer driver1Id,
+        @NotNull Integer driver2Id,
+        @NotNull Integer boardingAddressId,
+        @NotNull Integer droppingAddressId,
+        @NotNull Instant departureTime,
+        @NotNull Instant arrivalTime,
+        @NotNull Integer availableSeats,
+        @NotNull BigDecimal fare,
+        @NotNull Instant tripDate
+) implements Serializable {}
