@@ -6,13 +6,8 @@ import lombok.Value;
 import java.io.Serializable;
 
 
-@Value
-public class AgencyOfficeDto implements Serializable {
-    Integer id;
-    @Size(max = 100)
-    String officeMail;
-    @Size(max = 50)
-    String officeContactPersonName;
-    @Size(max = 10)
-    String officeContactNumber;
+public record AgencyOfficeDto(Integer id, @Size(max = 100) String officeMail,
+                              @Size(max = 50) String officeContactPersonName,
+                              @Size(max = 10) String officeContactNumber, Integer agencyId,
+                              Integer officeAddressId) implements Serializable {
 }
