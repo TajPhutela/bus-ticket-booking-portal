@@ -41,7 +41,7 @@ public class AgencyController {
         return agency.map(agencyMapper::toDto).orElse(null);
     }
 
-    @GetMapping("/offices/agencyid/{agency}")
+    @GetMapping("/offices/agency_id/{agency}")
     public List<AgencyOfficeDto> getOfficesByAgencyId(@PathVariable("agency") Integer agencyId) {
         List<AgencyOffice> offices = agencyOfficeRepository.findByAgencyId(agencyId);
         return offices.stream()
@@ -50,7 +50,7 @@ public class AgencyController {
     }
 
     @GetMapping("/offices/{id}")
-    public AgencyOfficeDto getOfficeById(@PathVariable("id") Long officeId) {
+    public AgencyOfficeDto getOfficeById(@PathVariable("id") Integer officeId) {
         AgencyOffice office = agencyOfficeRepository.findById(officeId).get();
         return agencyOfficeMapper.toDto(office);
     }
