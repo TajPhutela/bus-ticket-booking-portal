@@ -1,10 +1,10 @@
 package com.team4.backend.controller;
 
 import com.team4.backend.dto.DriverDto;
+import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Driver;
 import com.team4.backend.mapper.DriverMapper;
 import com.team4.backend.repository.DriverRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,70 +13,60 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/drivers")
 public class DriverController {
 
-    @Autowired
-    private DriverRepository driverRepository;
+    private final DriverRepository driverRepository;
+    private final DriverMapper driverMapper;
 
-    @Autowired
-    private DriverMapper driverMapper;
+    public DriverController(DriverRepository driverRepository, DriverMapper driverMapper) {
+        this.driverRepository = driverRepository;
+        this.driverMapper = driverMapper;
+    }
 
     @GetMapping("")
-    public ResponseEntity<List<DriverDto>> getAllDrivers() {
-        List<Driver> drivers = driverRepository.findAll();
-        List<DriverDto> driverDtos = drivers.stream()
-                .map(driverMapper::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(driverDtos, HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<DriverDto>>> getAllDrivers() {
+        List<DriverDto> driverDtos = driverRepository.findAll()
+                .stream().map(driverMapper::toDto).toList();
+        return ResponseEntity.ok(ApiResponse.success(driverDtos));
     }
 
     @GetMapping("/id/{driver_id}")
-    public ResponseEntity<DriverDto> getDriverById(@PathVariable("driver_id") int driverId) {
-        Optional<Driver> optionalDriver = driverRepository.findById(driverId);
-        return optionalDriver
-                .map(driver -> new ResponseEntity<>(driverMapper.toDto(driver), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<ApiResponse<DriverDto>> getDriverById(@PathVariable("driver_id") int driverId) {
+        return driverRepository.findById(driverId)
+                .map(driver -> ResponseEntity.ok(ApiResponse.success(driverMapper.toDto(driver))))
+                .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Driver not found"), HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<List<DriverDto>> getDriverByName(@PathVariable("name") String name) {
+    public ResponseEntity<ApiResponse<List<DriverDto>>> getDriverByName(@PathVariable("name") String name) {
         List<Driver> drivers = driverRepository.findByName(name);
         if (drivers.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiResponse.error(404, "No drivers found with name " + name), HttpStatus.NOT_FOUND);
         }
-        List<DriverDto> driverDtos = drivers.stream()
-                .map(driverMapper::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(driverDtos, HttpStatus.OK);
+        List<DriverDto> driverDtos = drivers.stream().map(driverMapper::toDto).toList();
+        return ResponseEntity.ok(ApiResponse.success(driverDtos));
     }
 
     @GetMapping("/office/{office_id}")
-    public ResponseEntity<List<DriverDto>> getDriverByOfficeId(@PathVariable("office_id") int officeId) {
+    public ResponseEntity<ApiResponse<List<DriverDto>>> getDriverByOfficeId(@PathVariable("office_id") int officeId) {
         List<Driver> drivers = driverRepository.findByOfficeId(officeId);
         if (drivers.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiResponse.error(404, "No drivers found for office ID " + officeId), HttpStatus.NOT_FOUND);
         }
-        List<DriverDto> driverDtos = drivers.stream()
-                .map(driverMapper::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(driverDtos, HttpStatus.OK);
+        List<DriverDto> driverDtos = drivers.stream().map(driverMapper::toDto).toList();
+        return ResponseEntity.ok(ApiResponse.success(driverDtos));
     }
 
     @GetMapping("/address/{address_id}")
-    public ResponseEntity<List<DriverDto>> getDriverByAddressId(@PathVariable("address_id") int addressId) {
+    public ResponseEntity<ApiResponse<List<DriverDto>>> getDriverByAddressId(@PathVariable("address_id") int addressId) {
         List<Driver> drivers = driverRepository.findByAddressId(addressId);
         if (drivers.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiResponse.error(404, "No drivers found for address ID " + addressId), HttpStatus.NOT_FOUND);
         }
-        List<DriverDto> driverDtos = drivers.stream()
-                .map(driverMapper::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(driverDtos, HttpStatus.OK);
+        List<DriverDto> driverDtos = drivers.stream().map(driverMapper::toDto).toList();
+        return ResponseEntity.ok(ApiResponse.success(driverDtos));
     }
 }
-
