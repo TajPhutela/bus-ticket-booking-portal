@@ -1,7 +1,5 @@
-package com.team4.backend.dto;
+package com.team4.backend.dto.request;
 
-import com.team4.backend.entities.Booking;
-import com.team4.backend.entities.Customer;
 import com.team4.backend.entities.Payment;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,7 +10,7 @@ import java.time.Instant;
 /**
  * DTO for {@link Payment}
  */
-public record PaymentDto(
+public record PaymentRequestDto(
         Integer id,
         @NotNull Integer bookingId,
         Integer customerId,

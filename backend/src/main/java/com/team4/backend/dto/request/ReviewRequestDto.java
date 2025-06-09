@@ -1,4 +1,4 @@
-package com.team4.backend.dto;
+package com.team4.backend.dto.request;
 
 import com.team4.backend.entities.Review;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import java.time.Instant;
 /**
  * DTO for {@link Review}
  */
-public record ReviewDto(
+public record ReviewRequestDto(
         Integer id,
         @NotNull Integer customerId,
         @NotNull Integer tripId,

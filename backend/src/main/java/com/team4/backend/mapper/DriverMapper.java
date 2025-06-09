@@ -1,6 +1,6 @@
 package com.team4.backend.mapper;
 
-import com.team4.backend.dto.DriverDto;
+import com.team4.backend.dto.request.DriverRequestDto;
 import com.team4.backend.entities.Driver;
 import com.team4.backend.mapper.helper.AgencyOfficeMapperHelper;
 import com.team4.backend.mapper.helper.DriverMapperHelper;
@@ -11,14 +11,14 @@ import org.mapstruct.*;
 public interface DriverMapper {
     @Mapping(source = "officeId", target = "office", qualifiedByName = "agencyOfficeFromId")
     @Mapping(source = "addressId", target = "address", qualifiedByName = "addressFromId")
-    Driver toEntity(DriverDto driverDto);
+    Driver toEntity(DriverRequestDto driverRequestDto);
 
     @Mapping(source = "office.id", target = "officeId")
     @Mapping(source = "address.id", target = "addressId")
-    DriverDto toDto(Driver driver);
+    DriverRequestDto toDto(Driver driver);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "officeId", target = "office", qualifiedByName = "agencyOfficeFromId")
     @Mapping(source = "addressId", target = "address", qualifiedByName = "addressFromId")
-    Driver partialUpdate(DriverDto driverDto, @MappingTarget Driver driver);
+    Driver partialUpdate(DriverRequestDto driverRequestDto, @MappingTarget Driver driver);
 }

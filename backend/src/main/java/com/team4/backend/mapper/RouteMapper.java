@@ -1,15 +1,15 @@
 package com.team4.backend.mapper;
 
+import com.team4.backend.dto.request.RouteRequestDto;
 import com.team4.backend.entities.Route;
-import com.team4.backend.dto.RouteDto;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RouteMapper {
-    Route toEntity(RouteDto routeDto);
+    Route toEntity(RouteRequestDto routeRequestDto);
 
-    RouteDto toDto(Route route);
+    RouteRequestDto toDto(Route route);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Route partialUpdate(RouteDto routeDto, @MappingTarget Route route);
+    Route partialUpdate(RouteRequestDto routeRequestDto, @MappingTarget Route route);
 }

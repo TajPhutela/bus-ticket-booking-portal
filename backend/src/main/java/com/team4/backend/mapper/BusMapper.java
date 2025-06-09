@@ -1,7 +1,7 @@
 package com.team4.backend.mapper;
 
+import com.team4.backend.dto.request.BusRequestDto;
 import com.team4.backend.entities.Bus;
-import com.team4.backend.dto.BusDto;
 import com.team4.backend.mapper.helper.BusMapperHelper;
 import org.mapstruct.*;
 
@@ -13,12 +13,12 @@ import org.mapstruct.*;
 public interface BusMapper {
 
     @Mapping(source = "officeId", target = "office", qualifiedByName = "officeFromId")
-    Bus toEntity(BusDto busDto);
+    Bus toEntity(BusRequestDto busRequestDto);
 
     @Mapping(source = "office.id", target = "officeId")
-    BusDto toDto(Bus bus);
+    BusRequestDto toDto(Bus bus);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "officeId", target = "office", qualifiedByName = "officeFromId")
-    Bus partialUpdate(BusDto busDto, @MappingTarget Bus bus);
+    Bus partialUpdate(BusRequestDto busRequestDto, @MappingTarget Bus bus);
 }

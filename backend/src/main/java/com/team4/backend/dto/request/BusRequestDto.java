@@ -1,4 +1,4 @@
-package com.team4.backend.dto;
+package com.team4.backend.dto.request;
 
 import com.team4.backend.entities.Bus;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * DTO for {@link Bus}
  */
-public record BusDto(
+public record BusRequestDto(
         Integer id,
         @NotNull @Size(max = 20) String registrationNumber,
         @NotNull Integer capacity,

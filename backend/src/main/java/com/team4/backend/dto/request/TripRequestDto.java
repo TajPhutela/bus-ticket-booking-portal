@@ -1,4 +1,4 @@
-package com.team4.backend.dto;
+package com.team4.backend.dto.request;
 
 import com.team4.backend.entities.Trip;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import java.time.Instant;
 /**
  * DTO for {@link Trip}
  */
-public record TripDto(
+public record TripRequestDto(
         Integer id,
         @NotNull Integer routeId,
         @NotNull Integer busId,

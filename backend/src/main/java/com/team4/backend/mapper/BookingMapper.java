@@ -1,6 +1,6 @@
 package com.team4.backend.mapper;
 
-import com.team4.backend.dto.BookingDto;
+import com.team4.backend.dto.request.BookingRequestDto;
 import com.team4.backend.entities.Booking;
 import com.team4.backend.mapper.helper.BookingMapperHelper;
 import org.mapstruct.*;
@@ -13,12 +13,12 @@ import org.mapstruct.*;
 public interface BookingMapper {
 
     @Mapping(source = "tripId", target = "trip", qualifiedByName = "tripFromId")
-    Booking toEntity(BookingDto bookingDto);
+    Booking toEntity(BookingRequestDto bookingRequestDto);
 
     @Mapping(source = "trip.id", target = "tripId")
-    BookingDto toDto(Booking booking);
+    BookingRequestDto toDto(Booking booking);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "tripId", target = "trip", qualifiedByName = "tripFromId")
-    Booking partialUpdate(BookingDto bookingDto, @MappingTarget Booking booking);
+    Booking partialUpdate(BookingRequestDto bookingRequestDto, @MappingTarget Booking booking);
 }

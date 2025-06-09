@@ -1,4 +1,4 @@
-package com.team4.backend.dto;
+package com.team4.backend.dto.request;
 
 import com.team4.backend.entities.Customer;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * DTO for {@link Customer}
  */
-public record CustomerDto(
+public record CustomerRequestDto(
         Integer id,
         @NotNull @Size(max = 255) String name,
         @NotNull @Size(max = 255) String email,

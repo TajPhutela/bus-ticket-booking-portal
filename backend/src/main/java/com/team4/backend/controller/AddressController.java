@@ -1,6 +1,6 @@
 package com.team4.backend.controller;
 
-import com.team4.backend.dto.AddressDto;
+import com.team4.backend.dto.request.AddressRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Address;
 import com.team4.backend.mapper.AddressMapper;
@@ -28,8 +28,8 @@ public class AddressController {
 
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<AddressDto>> createAddress(@Valid @RequestBody AddressDto addressDto) {
-        Address address = addressMapper.toEntity(addressDto);
+    public ResponseEntity<ApiResponse<AddressRequestDto>> createAddress(@Valid @RequestBody AddressRequestDto addressRequestDto) {
+        Address address = addressMapper.toEntity(addressRequestDto);
         Address saved = addressRepository.save(address);
         return new ResponseEntity<>(
                 ApiResponse.success(
@@ -41,7 +41,7 @@ public class AddressController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<AddressDto>> updateAddress(@PathVariable Integer id, @Valid @RequestBody AddressDto addressDto) {
+    public ResponseEntity<ApiResponse<AddressRequestDto>> updateAddress(@PathVariable Integer id, @Valid @RequestBody AddressRequestDto addressRequestDto) {
         if (!addressRepository.existsById(id)) {
             return new ResponseEntity<>(
                     ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Address with ID " + id + " not found"),
@@ -49,7 +49,7 @@ public class AddressController {
             );
         }
 
-        Address address = addressMapper.toEntity(addressDto);
+        Address address = addressMapper.toEntity(addressRequestDto);
         address.setId(id);
 
         Address updated = addressRepository.save(address);
@@ -61,19 +61,19 @@ public class AddressController {
 
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<AddressDto>>> getAllAddresses() {
+    public ResponseEntity<ApiResponse<List<AddressRequestDto>>> getAllAddresses() {
         List<Address> addresses = addressRepository.findAll();
-        List<AddressDto> addressDtos = addresses.stream()
+        List<AddressRequestDto> addressRequestDtos = addresses.stream()
                 .map(addressMapper::toDto)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(ApiResponse.success(addressDtos), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success(addressRequestDtos), HttpStatus.OK);
     }
 
     @GetMapping("/{address_id}")
-    public ResponseEntity<ApiResponse<AddressDto>> getAddressById(@PathVariable("address_id") Integer addressId) {
+    public ResponseEntity<ApiResponse<AddressRequestDto>> getAddressById(@PathVariable("address_id") Integer addressId) {
         Optional<Address> address = addressRepository.findById(addressId);
         if (address.isPresent()) {
-            AddressDto dto = addressMapper.toDto(address.get());
+            AddressRequestDto dto = addressMapper.toDto(address.get());
             return new ResponseEntity<>(ApiResponse.success(dto), HttpStatus.OK);
         }
         return new ResponseEntity<>(ApiResponse.error(
@@ -82,38 +82,38 @@ public class AddressController {
     }
 
     @GetMapping("/city/{city}")
-    public ResponseEntity<ApiResponse<List<AddressDto>>> getAddressesByCity(@PathVariable("city") String city) {
+    public ResponseEntity<ApiResponse<List<AddressRequestDto>>> getAddressesByCity(@PathVariable("city") String city) {
         List<Address> addresses = addressRepository.findByCity(city);
         if (addresses.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(
                     HttpStatus.NOT_FOUND.value(),
                     "No addresses found in city: " + city), HttpStatus.NOT_FOUND);
         }
-        List<AddressDto> addressDtos = addresses.stream().map(addressMapper::toDto).collect(Collectors.toList());
-        return new ResponseEntity<>(ApiResponse.success(addressDtos), HttpStatus.OK);
+        List<AddressRequestDto> addressRequestDtos = addresses.stream().map(addressMapper::toDto).collect(Collectors.toList());
+        return new ResponseEntity<>(ApiResponse.success(addressRequestDtos), HttpStatus.OK);
     }
 
     @GetMapping("/state/{state}")
-    public ResponseEntity<ApiResponse<List<AddressDto>>> getAddressesByState(@PathVariable("state") String state) {
+    public ResponseEntity<ApiResponse<List<AddressRequestDto>>> getAddressesByState(@PathVariable("state") String state) {
         List<Address> addresses = addressRepository.findByState(state);
         if (addresses.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(
                     HttpStatus.NOT_FOUND.value(),
                     "No addresses found in state: " + state), HttpStatus.NOT_FOUND);
         }
-        List<AddressDto> addressDtos = addresses.stream().map(addressMapper::toDto).collect(Collectors.toList());
-        return new ResponseEntity<>(ApiResponse.success(addressDtos), HttpStatus.OK);
+        List<AddressRequestDto> addressRequestDtos = addresses.stream().map(addressMapper::toDto).collect(Collectors.toList());
+        return new ResponseEntity<>(ApiResponse.success(addressRequestDtos), HttpStatus.OK);
     }
 
     @GetMapping("/zipCode/{zipCode}")
-    public ResponseEntity<ApiResponse<List<AddressDto>>> getAddressesByZipCode(@PathVariable("zipCode") String zipCode) {
+    public ResponseEntity<ApiResponse<List<AddressRequestDto>>> getAddressesByZipCode(@PathVariable("zipCode") String zipCode) {
         List<Address> addresses = addressRepository.findByZipCode(zipCode);
         if (addresses.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(
                     HttpStatus.NOT_FOUND.value(),
                     "No addresses found with zip code: " + zipCode), HttpStatus.NOT_FOUND);
         }
-        List<AddressDto> addressDtos = addresses.stream().map(addressMapper::toDto).collect(Collectors.toList());
-        return new ResponseEntity<>(ApiResponse.success(addressDtos), HttpStatus.OK);
+        List<AddressRequestDto> addressRequestDtos = addresses.stream().map(addressMapper::toDto).collect(Collectors.toList());
+        return new ResponseEntity<>(ApiResponse.success(addressRequestDtos), HttpStatus.OK);
     }
 }

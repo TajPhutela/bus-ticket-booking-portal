@@ -1,6 +1,6 @@
 package com.team4.backend.controller;
 
-import com.team4.backend.dto.ReviewDto;
+import com.team4.backend.dto.request.ReviewRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Review;
 import com.team4.backend.mapper.ReviewMapper;
@@ -27,16 +27,16 @@ public class ReviewController {
     private ReviewMapper reviewMapper;
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getAllReviews() {
-        List<ReviewDto> reviewDtos = reviewRepository.findAll()
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getAllReviews() {
+        List<ReviewRequestDto> reviewRequestDtos = reviewRepository.findAll()
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(reviewDtos));
+        return ResponseEntity.ok(ApiResponse.success(reviewRequestDtos));
     }
 
     @GetMapping("/{review_id}")
-    public ResponseEntity<ApiResponse<ReviewDto>> getReviewById(@PathVariable("review_id") int reviewId) {
+    public ResponseEntity<ApiResponse<ReviewRequestDto>> getReviewById(@PathVariable("review_id") int reviewId) {
         Optional<Review> review = reviewRepository.findById(reviewId);
         if (review.isPresent()) {
             return ResponseEntity.ok(ApiResponse.success(reviewMapper.toDto(review.get())));
@@ -48,8 +48,8 @@ public class ReviewController {
     }
 
     @GetMapping("/tripid/{trip_id}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsByTripId(@PathVariable("trip_id") Integer tripId) {
-        List<ReviewDto> dtos = reviewRepository.findByTripId(tripId)
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsByTripId(@PathVariable("trip_id") Integer tripId) {
+        List<ReviewRequestDto> dtos = reviewRepository.findByTripId(tripId)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -57,8 +57,8 @@ public class ReviewController {
     }
 
     @GetMapping("/customerid/{customer_id}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsByCustomerId(@PathVariable("customer_id") Integer customerId) {
-        List<ReviewDto> dtos = reviewRepository.findByCustomerId(customerId)
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsByCustomerId(@PathVariable("customer_id") Integer customerId) {
+        List<ReviewRequestDto> dtos = reviewRepository.findByCustomerId(customerId)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -66,8 +66,8 @@ public class ReviewController {
     }
 
     @GetMapping("/rating/{rating}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsByRating(@PathVariable("rating") Integer rating) {
-        List<ReviewDto> dtos = reviewRepository.findByRating(rating)
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsByRating(@PathVariable("rating") Integer rating) {
+        List<ReviewRequestDto> dtos = reviewRepository.findByRating(rating)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -75,8 +75,8 @@ public class ReviewController {
     }
 
     @GetMapping("/gt/{rating}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsWithRatingGreaterThan(@PathVariable("rating") Integer rating) {
-        List<ReviewDto> dtos = reviewRepository.findByRatingGreaterThan(rating)
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsWithRatingGreaterThan(@PathVariable("rating") Integer rating) {
+        List<ReviewRequestDto> dtos = reviewRepository.findByRatingGreaterThan(rating)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -84,8 +84,8 @@ public class ReviewController {
     }
 
     @GetMapping("/lt/{rating}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsWithRatingLessThan(@PathVariable("rating") Integer rating) {
-        List<ReviewDto> dtos = reviewRepository.findByRatingLessThan(rating)
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsWithRatingLessThan(@PathVariable("rating") Integer rating) {
+        List<ReviewRequestDto> dtos = reviewRepository.findByRatingLessThan(rating)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -93,10 +93,10 @@ public class ReviewController {
     }
 
     @GetMapping("/customer/{customer_id}/trip/{trip_id}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsByCustomerAndTrip(
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsByCustomerAndTrip(
             @PathVariable("customer_id") Integer customerId,
             @PathVariable("trip_id") Integer tripId) {
-        List<ReviewDto> dtos = reviewRepository.findByCustomerIdAndTripId(customerId, tripId)
+        List<ReviewRequestDto> dtos = reviewRepository.findByCustomerIdAndTripId(customerId, tripId)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -104,10 +104,10 @@ public class ReviewController {
     }
 
     @GetMapping("/date/{reviewDate}")
-    public ResponseEntity<ApiResponse<List<ReviewDto>>> getReviewsByReviewDate(@PathVariable("reviewDate") String reviewDateStr) {
+    public ResponseEntity<ApiResponse<List<ReviewRequestDto>>> getReviewsByReviewDate(@PathVariable("reviewDate") String reviewDateStr) {
         try {
             Instant reviewDate = Instant.parse(reviewDateStr);
-            List<ReviewDto> dtos = reviewRepository.findByReviewDate(reviewDate)
+            List<ReviewRequestDto> dtos = reviewRepository.findByReviewDate(reviewDate)
                     .stream()
                     .map(reviewMapper::toDto)
                     .collect(Collectors.toList());
@@ -121,8 +121,8 @@ public class ReviewController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<ReviewDto>> addReview(@Valid @RequestBody ReviewDto reviewDto) {
-        Review review = reviewRepository.save(reviewMapper.toEntity(reviewDto));
+    public ResponseEntity<ApiResponse<ReviewRequestDto>> addReview(@Valid @RequestBody ReviewRequestDto reviewRequestDto) {
+        Review review = reviewRepository.save(reviewMapper.toEntity(reviewRequestDto));
         return new ResponseEntity<>(
                 ApiResponse.success(
                         HttpStatus.CREATED.value(),
@@ -135,9 +135,9 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ReviewDto>> updateReview(
+    public ResponseEntity<ApiResponse<ReviewRequestDto>> updateReview(
             @PathVariable Integer id,
-            @Valid @RequestBody ReviewDto reviewDto) {
+            @Valid @RequestBody ReviewRequestDto reviewRequestDto) {
 
         if (!reviewRepository.existsById(id)) {
             return new ResponseEntity<>(
@@ -146,7 +146,7 @@ public class ReviewController {
             );
         }
 
-        Review review = reviewMapper.toEntity(reviewDto);
+        Review review = reviewMapper.toEntity(reviewRequestDto);
         review.setId(id);
         Review saved = reviewRepository.save(review);
 

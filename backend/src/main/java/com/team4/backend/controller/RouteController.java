@@ -1,6 +1,6 @@
 package com.team4.backend.controller;
 
-import com.team4.backend.dto.RouteDto;
+import com.team4.backend.dto.request.RouteRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Route;
 import com.team4.backend.mapper.RouteMapper;
@@ -26,62 +26,62 @@ public class RouteController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<RouteDto>> addRoute(@RequestBody RouteDto routeDto) {
-        Route savedRoute = routeRepository.save(routeMapper.toEntity(routeDto));
+    public ResponseEntity<ApiResponse<RouteRequestDto>> addRoute(@RequestBody RouteRequestDto routeRequestDto) {
+        Route savedRoute = routeRepository.save(routeMapper.toEntity(routeRequestDto));
         return new ResponseEntity<>(
                 ApiResponse.success(HttpStatus.CREATED.value(), "Route created", routeMapper.toDto(savedRoute)),
                 HttpStatus.CREATED);
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<RouteDto>>> getAllRoutes() {
-        List<RouteDto> dtos = routeRepository.findAll()
+    public ResponseEntity<ApiResponse<List<RouteRequestDto>>> getAllRoutes() {
+        List<RouteRequestDto> dtos = routeRepository.findAll()
                 .stream().map(routeMapper::toDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
     @GetMapping("/{route_id}")
-    public ResponseEntity<ApiResponse<RouteDto>> getRouteById(@PathVariable("route_id") int routeId) {
+    public ResponseEntity<ApiResponse<RouteRequestDto>> getRouteById(@PathVariable("route_id") int routeId) {
         return routeRepository.findById(routeId)
                 .map(route -> ResponseEntity.ok(ApiResponse.success(routeMapper.toDto(route))))
                 .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Route not found"), HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/fromcity/{from_city}")
-    public ResponseEntity<ApiResponse<List<RouteDto>>> getRoutesByFromCity(@PathVariable String from_city) {
+    public ResponseEntity<ApiResponse<List<RouteRequestDto>>> getRoutesByFromCity(@PathVariable String from_city) {
         List<Route> routes = routeRepository.findByFromCity(from_city);
         if (routes.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(404, "No routes from " + from_city), HttpStatus.NOT_FOUND);
         }
-        List<RouteDto> dtos = routes.stream().map(routeMapper::toDto).toList();
+        List<RouteRequestDto> dtos = routes.stream().map(routeMapper::toDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
     @GetMapping("/tocity/{to_city}")
-    public ResponseEntity<ApiResponse<List<RouteDto>>> getRoutesByToCity(@PathVariable String to_city) {
+    public ResponseEntity<ApiResponse<List<RouteRequestDto>>> getRoutesByToCity(@PathVariable String to_city) {
         List<Route> routes = routeRepository.findByToCity(to_city);
         if (routes.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(404, "No routes to " + to_city), HttpStatus.NOT_FOUND);
         }
-        List<RouteDto> dtos = routes.stream().map(routeMapper::toDto).toList();
+        List<RouteRequestDto> dtos = routes.stream().map(routeMapper::toDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
     @GetMapping("/{from_city}/{to_city}")
-    public ResponseEntity<ApiResponse<List<RouteDto>>> getRoutesByFromAndTo(
+    public ResponseEntity<ApiResponse<List<RouteRequestDto>>> getRoutesByFromAndTo(
             @PathVariable String from_city,
             @PathVariable String to_city) {
         List<Route> routes = routeRepository.findByFromCityAndToCity(from_city, to_city);
         if (routes.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(404, "No routes found from " + from_city + " to " + to_city), HttpStatus.NOT_FOUND);
         }
-        List<RouteDto> dtos = routes.stream().map(routeMapper::toDto).toList();
+        List<RouteRequestDto> dtos = routes.stream().map(routeMapper::toDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<RouteDto>> updateRoute(@PathVariable("id") Integer routeId,
-                                                             @Valid @RequestBody RouteDto routeDto) {
+    public ResponseEntity<ApiResponse<RouteRequestDto>> updateRoute(@PathVariable("id") Integer routeId,
+                                                                    @Valid @RequestBody RouteRequestDto routeRequestDto) {
         Optional<Route> existingRouteOpt = routeRepository.findById(routeId);
 
         if (existingRouteOpt.isEmpty()) {
@@ -89,7 +89,7 @@ public class RouteController {
                     .body(ApiResponse.error(404, "Route not found."));
         }
 
-        Route updatedRoute = routeMapper.toEntity(routeDto);
+        Route updatedRoute = routeMapper.toEntity(routeRequestDto);
         updatedRoute.setId(routeId);
 
         Route savedRoute = routeRepository.save(updatedRoute);
