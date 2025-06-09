@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByTrip_Id(Integer tripId);
-    List<Booking> findByStatusIgnoreCase(String status);
+    List<Booking> findByStatus(String status);
     List<Booking> findBySeatNumber(Integer seatNumber);
 
 
