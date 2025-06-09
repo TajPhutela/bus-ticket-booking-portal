@@ -9,5 +9,5 @@ import java.io.Serializable;
 /**
  * DTO for {@link Booking}
  */
-public record BookingDto(Integer id, Trip trip, @NotNull Integer seatNumber, String status) implements Serializable {
+public record BookingDto(Integer id, Integer tripId, @NotNull Integer seatNumber, String status) implements Serializable {
 }
