@@ -3,6 +3,7 @@ package com.team4.backend.controller;
 import com.team4.backend.dto.CustomerDto;
 import com.team4.backend.dto.ReviewDto;
 import com.team4.backend.dto.TripDto;
+import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Customer;
 import com.team4.backend.entities.Review;
 import com.team4.backend.entities.Trip;
@@ -26,70 +27,79 @@ public class CustomerController {
 
     @Autowired
     private CustomerRepository customerRepository;
+
     @Autowired
     private CustomerMapper customerMapper;
 
     @GetMapping("")
-    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
+    public ResponseEntity<ApiResponse<List<CustomerDto>>> getAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
         List<CustomerDto> customerDtos = customers.stream()
-                .map(customer -> customerMapper.toDto(customer))
+                .map(customerMapper::toDto)
                 .toList();
-        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success(customerDtos), HttpStatus.OK);
     }
 
     @GetMapping("/{customer_id}")
-    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable("customer_id") int customer_id) {
+    public ResponseEntity<ApiResponse<CustomerDto>> getCustomerById(@PathVariable("customer_id") int customer_id) {
         Optional<Customer> customer = customerRepository.findById(customer_id);
         if (customer.isPresent()) {
             CustomerDto customerDto = customerMapper.toDto(customer.get());
-            return new ResponseEntity<>(customerDto, HttpStatus.OK);
+            return new ResponseEntity<>(ApiResponse.success(customerDto), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(
+                ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customer with ID " + customer_id + " not found"),
+                HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<List<CustomerDto>> getCustomerByName(@PathVariable String name) {
-        List<Customer> customer = customerRepository.findByName(name);
-
-        if (customer.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse<List<CustomerDto>>> getCustomerByName(@PathVariable String name) {
+        List<Customer> customers = customerRepository.findByName(name);
+        if (customers.isEmpty()) {
+            return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customers with name '" + name + "' not found"),
+                    HttpStatus.NOT_FOUND);
         }
 
-        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
-        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+        List<CustomerDto> customerDtos = customers.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(customerDtos), HttpStatus.OK);
     }
+
     @GetMapping("/email/{email}")
-    public ResponseEntity<List<CustomerDto>> getCustomerByEmail(@PathVariable String email) {
-        List<Customer> customer = customerRepository.findByEmail(email);
-
-        if (customer.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse<List<CustomerDto>>> getCustomerByEmail(@PathVariable String email) {
+        List<Customer> customers = customerRepository.findByEmail(email);
+        if (customers.isEmpty()) {
+            return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customers with email '" + email + "' not found"),
+                    HttpStatus.NOT_FOUND);
         }
 
-        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
-        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+        List<CustomerDto> customerDtos = customers.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(customerDtos), HttpStatus.OK);
     }
+
     @GetMapping("/phoneNumber/{phoneNumber}")
-    public ResponseEntity<List<CustomerDto>> getCustomerByPhoneNumber(@PathVariable String phoneNumber) {
-        List<Customer> customer = customerRepository.findByPhone(phoneNumber);
-
-        if (customer.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse<List<CustomerDto>>> getCustomerByPhoneNumber(@PathVariable String phoneNumber) {
+        List<Customer> customers = customerRepository.findByPhone(phoneNumber);
+        if (customers.isEmpty()) {
+            return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(),
+                    "Customers with phone number '" + phoneNumber + "' not found"),
+                    HttpStatus.NOT_FOUND);
         }
 
-        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
-        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+        List<CustomerDto> customerDtos = customers.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(customerDtos), HttpStatus.OK);
     }
-    @GetMapping("/addressId/{address_id}")
-    public ResponseEntity<List<CustomerDto>> getCustomerByAddress(@PathVariable int address_id) {
-        List<Customer> customer = customerRepository.findByAddress_Id(address_id);
 
-        if (customer.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/addressId/{address_id}")
+    public ResponseEntity<ApiResponse<List<CustomerDto>>> getCustomerByAddress(@PathVariable int address_id) {
+        List<Customer> customers = customerRepository.findByAddress_Id(address_id);
+
+        if (customers.isEmpty()) {
+            return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(),
+                    "Customers with Address ID " + address_id + " not found"),
+                    HttpStatus.NOT_FOUND);
         }
 
-        List<CustomerDto> customerDtos = customer.stream().map(customerMapper::toDto).toList();
-        return new ResponseEntity<>(customerDtos, HttpStatus.OK);
+        List<CustomerDto> customerDtos = customers.stream().map(customerMapper::toDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(customerDtos), HttpStatus.OK);
     }
 }
