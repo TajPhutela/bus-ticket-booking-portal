@@ -7,10 +7,7 @@ import com.team4.backend.mapper.DriverMapper;
 import com.team4.backend.repository.DriverRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -68,5 +65,26 @@ public class DriverController {
         }
         List<DriverDto> driverDtos = drivers.stream().map(driverMapper::toDto).toList();
         return ResponseEntity.ok(ApiResponse.success(driverDtos));
+    }
+
+
+    @PostMapping("")
+    public ResponseEntity<ApiResponse<DriverDto>> addDriver(@RequestBody DriverDto driverDto) {
+        Driver savedDriver = driverRepository.save(driverMapper.toEntity(driverDto));
+        return new ResponseEntity<>(
+                ApiResponse.success(HttpStatus.CREATED.value(), "Driver created", driverMapper.toDto(savedDriver)),
+                HttpStatus.CREATED);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<DriverDto>> updateDriver(@PathVariable Integer id, @RequestBody DriverDto driverDto) {
+        return driverRepository.findById(id)
+                .map(existingDriver -> {
+                    Driver updated = driverMapper.partialUpdate(driverDto, existingDriver);
+                    Driver saved = driverRepository.save(updated);
+                    return ResponseEntity.ok(ApiResponse.success(saved != null ? driverMapper.toDto(saved) : null));
+                })
+                .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Driver not found"), HttpStatus.NOT_FOUND));
     }
 }
