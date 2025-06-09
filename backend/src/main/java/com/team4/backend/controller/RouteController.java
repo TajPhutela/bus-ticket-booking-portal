@@ -83,7 +83,7 @@ public class RouteController {
                 .map(existingRoute -> {
                     Route updated = routeMapper.partialUpdate(routeDto, existingRoute);
                     Route saved = routeRepository.save(updated);
-                    return ResponseEntity.ok(ApiResponse.success(saved != null ? routeMapper.toDto(saved) : null));
+                    return ResponseEntity.ok(ApiResponse.success(routeMapper.toDto(saved)));
                 })
                 .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Route not found"), HttpStatus.NOT_FOUND));
     }
