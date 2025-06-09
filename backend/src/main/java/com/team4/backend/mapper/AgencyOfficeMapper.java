@@ -13,15 +13,15 @@ import org.mapstruct.*;
 public interface AgencyOfficeMapper {
 
     @Mapping(source = "agencyId", target = "agency", qualifiedByName = "agencyFromId")
-//    @Mapping(source = "officeAddressId", target = "officeAddress", qualifiedByName = "addressFromId")
+    @Mapping(source = "officeAddressId", target = "officeAddress", qualifiedByName = "addressFromId")
     AgencyOffice toEntity(AgencyOfficeDto agencyOfficeDto);
 
     @Mapping(source = "agency.id", target = "agencyId")
-//    @Mapping(source = "officeAddress.id", target = "officeAddressId")
+    @Mapping(source = "officeAddress.id", target = "officeAddressId")
     AgencyOfficeDto toDto(AgencyOffice agencyOffice);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "agencyId", target = "agency", qualifiedByName = "agencyFromId")
-//    @Mapping(source = "officeAddressId", target = "officeAddress", qualifiedByName = "addressFromId")
+    @Mapping(source = "officeAddressId", target = "officeAddress", qualifiedByName = "addressFromId")
     AgencyOffice partialUpdate(AgencyOfficeDto agencyOfficeDto, @MappingTarget AgencyOffice agencyOffice);
 }

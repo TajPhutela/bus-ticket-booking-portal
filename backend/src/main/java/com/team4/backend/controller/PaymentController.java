@@ -1,25 +1,15 @@
 package com.team4.backend.controller;
 
-
-
 import com.team4.backend.dto.PaymentDto;
-import com.team4.backend.entities.Booking;
+import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Payment;
 import com.team4.backend.mapper.PaymentMapper;
 import com.team4.backend.repository.PaymentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.DateFormatter;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,58 +18,81 @@ import java.util.stream.Collectors;
 @RequestMapping("api/payment")
 public class PaymentController {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
+    private final PaymentMapper paymentMapper;
 
-    @Autowired
-    private PaymentMapper paymentMapper;
-
-
+    public PaymentController(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
+        this.paymentRepository = paymentRepository;
+        this.paymentMapper = paymentMapper;
+    }
 
     @GetMapping("")
-    public ResponseEntity<List<PaymentDto>> getAllPayments() {
+    public ResponseEntity<ApiResponse<List<PaymentDto>>> getAllPayments() {
         List<Payment> payments = paymentRepository.findAll();
         List<PaymentDto> paymentDtos = payments.stream()
                 .map(paymentMapper::toDto)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(paymentDtos);
+
+        return new ResponseEntity<>(ApiResponse.success(paymentDtos), HttpStatus.OK);
     }
 
-
     @GetMapping("/{payment_id}")
-    public ResponseEntity<PaymentDto> getPaymentById(@PathVariable("payment_id") Integer paymentId) {
+    public ResponseEntity<ApiResponse<PaymentDto>> getPaymentById(@PathVariable("payment_id") Integer paymentId) {
         Optional<Payment> payment = paymentRepository.findById(paymentId);
-        return payment.map(paymentMapper::toDto)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (payment.isPresent()) {
+            PaymentDto paymentDto = paymentMapper.toDto(payment.get());
+            return new ResponseEntity<>(ApiResponse.success(paymentDto), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(
+                ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Payment with Id " + paymentId + " not found"),
+                HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/customer/{customer_id}")
-    public ResponseEntity<List<PaymentDto>> getPaymentsByCustomerId(@PathVariable("customer_id") Integer customerId) {
-        List<Payment>payments = paymentRepository.findByCustomerId(customerId);
+    public ResponseEntity<ApiResponse<List<PaymentDto>>> getPaymentsByCustomerId(@PathVariable("customer_id") Integer customerId) {
+        List<Payment> payments = paymentRepository.findByCustomerId(customerId);
+        if (payments.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Payments for customer " + customerId + " not found"),
+                    HttpStatus.NOT_FOUND);
+        }
         List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(paymentDtos);
+        return new ResponseEntity<>(ApiResponse.success(paymentDtos), HttpStatus.OK);
     }
 
     @GetMapping("/booking/{booking_id}")
-    public ResponseEntity<List<PaymentDto>> getPaymentsByBookingId(@PathVariable("booking_id") Integer bookingId) {
-        List<Payment>payments = paymentRepository.findByBookingId(bookingId);
+    public ResponseEntity<ApiResponse<List<PaymentDto>>> getPaymentsByBookingId(@PathVariable("booking_id") Integer bookingId) {
+        List<Payment> payments = paymentRepository.findByBookingId(bookingId);
+        if (payments.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Payments for booking " + bookingId + " not found"),
+                    HttpStatus.NOT_FOUND);
+        }
         List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(paymentDtos);
+        return new ResponseEntity<>(ApiResponse.success(paymentDtos), HttpStatus.OK);
     }
 
     @GetMapping("/amount/{amount}")
-    public ResponseEntity<List<PaymentDto>> getPaymentsByAmount(@PathVariable("amount") BigDecimal amount) {
-        List<Payment>payments = paymentRepository.findByAmount(amount);
+    public ResponseEntity<ApiResponse<List<PaymentDto>>> getPaymentsByAmount(@PathVariable("amount") BigDecimal amount) {
+        List<Payment> payments = paymentRepository.findByAmount(amount);
+        if (payments.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Payments with amount " + amount + " not found"),
+                    HttpStatus.NOT_FOUND);
+        }
         List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(paymentDtos);
+        return new ResponseEntity<>(ApiResponse.success(paymentDtos), HttpStatus.OK);
     }
+
     @GetMapping("/status/{payment_status}")
-    public ResponseEntity<List<PaymentDto>> getPaymentsByStatus(@PathVariable("payment_status") String paymentStatus) {
-        List<Payment>payments = paymentRepository.findByPaymentStatus(paymentStatus);
+    public ResponseEntity<ApiResponse<List<PaymentDto>>> getPaymentsByStatus(@PathVariable("payment_status") String paymentStatus) {
+        List<Payment> payments = paymentRepository.findByPaymentStatus(paymentStatus);
+        if (payments.isEmpty()) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Payments with status " + paymentStatus + " not found"),
+                    HttpStatus.NOT_FOUND);
+        }
         List<PaymentDto> paymentDtos = payments.stream().map(paymentMapper::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(paymentDtos);
+        return new ResponseEntity<>(ApiResponse.success(paymentDtos), HttpStatus.OK);
     }
-
-
 }

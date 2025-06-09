@@ -14,16 +14,16 @@ import org.mapstruct.*;
 )
 public interface PaymentMapper {
 
-//    @Mapping(source = "bookingId", target = "booking", qualifiedByName = "bookingFromId")
+    @Mapping(source = "bookingId", target = "booking", qualifiedByName = "bookingFromId")
     @Mapping(source = "customerId", target = "customer", qualifiedByName = "customerFromId")
     Payment toEntity(PaymentDto paymentDto);
 
-//    @Mapping(source = "booking.id", target = "bookingId")
+    @Mapping(source = "booking.id", target = "bookingId")
     @Mapping(source = "customer.id", target = "customerId")
     PaymentDto toDto(Payment payment);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-//    @Mapping(source = "bookingId", target = "booking", qualifiedByName = "bookingFromId")
+    @Mapping(source = "bookingId", target = "booking", qualifiedByName = "bookingFromId")
     @Mapping(source = "customerId", target = "customer", qualifiedByName = "customerFromId")
     Payment partialUpdate(PaymentDto paymentDto, @MappingTarget Payment payment);
 }
