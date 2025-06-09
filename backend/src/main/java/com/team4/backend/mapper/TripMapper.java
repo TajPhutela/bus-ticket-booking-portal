@@ -1,13 +1,17 @@
 package com.team4.backend.mapper;
 
 import com.team4.backend.dto.request.TripRequestDto;
+import com.team4.backend.dto.response.TripResponseDto;
 import com.team4.backend.entities.Trip;
 import com.team4.backend.mapper.helper.TripMapperHelper;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = TripMapperHelper.class)
+        uses = {TripMapperHelper.class,
+                RouteMapper.class,
+                BusMapper.class,
+                DriverMapper.class})
 public interface TripMapper {
     @Mapping(source = "routeId", target = "route", qualifiedByName = "routeFromId")
     @Mapping(source = "busId", target = "bus", qualifiedByName = "busFromId")
@@ -27,4 +31,7 @@ public interface TripMapper {
     @Mapping(source = "driver1Id", target = "driver1Driver", qualifiedByName = "driverFromId")
     @Mapping(source = "driver2Id", target = "driver2Driver", qualifiedByName = "driverFromId")
     Trip partialUpdate(TripRequestDto tripRequestDto, @MappingTarget Trip trip);
+
+
+    TripResponseDto toResponseDto(Trip trip);
 }

@@ -1,6 +1,7 @@
 package com.team4.backend.mapper;
 
 import com.team4.backend.dto.request.AgencyRequestDto;
+import com.team4.backend.dto.response.AgencyResponseDto;
 import com.team4.backend.entities.Agency;
 import org.mapstruct.*;
 
@@ -12,4 +13,6 @@ public interface AgencyMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Agency partialUpdate(AgencyRequestDto agencyRequestDto, @MappingTarget Agency agency);
+
+    AgencyResponseDto toResponseDto(Agency agency);
 }

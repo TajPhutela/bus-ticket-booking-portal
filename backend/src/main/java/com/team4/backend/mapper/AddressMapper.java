@@ -1,6 +1,7 @@
 package com.team4.backend.mapper;
 
 import com.team4.backend.dto.request.AddressRequestDto;
+import com.team4.backend.dto.response.AddressResponseDto;
 import com.team4.backend.entities.Address;
 import org.mapstruct.*;
 
@@ -12,4 +13,6 @@ public interface AddressMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Address partialUpdate(AddressRequestDto addressRequestDto, @MappingTarget Address address);
+
+    AddressResponseDto toResponseDto(Address address);
 }

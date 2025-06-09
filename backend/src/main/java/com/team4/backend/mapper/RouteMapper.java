@@ -1,6 +1,7 @@
 package com.team4.backend.mapper;
 
 import com.team4.backend.dto.request.RouteRequestDto;
+import com.team4.backend.dto.response.RouteResponseDto;
 import com.team4.backend.entities.Route;
 import org.mapstruct.*;
 
@@ -12,4 +13,6 @@ public interface RouteMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Route partialUpdate(RouteRequestDto routeRequestDto, @MappingTarget Route route);
+
+    RouteResponseDto toResponseDto(Route route);
 }
