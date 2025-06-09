@@ -9,6 +9,10 @@ import java.io.Serializable;
 /**
  * DTO for {@link Customer}
  */
-public record CustomerDto(Integer id, @NotNull @Size(max = 255) String name, @NotNull @Size(max = 255) String email,
-                          @NotNull @Size(max = 15) String phone) implements Serializable {
-}
+public record CustomerDto(
+        Integer id,
+        @NotNull @Size(max = 255) String name,
+        @NotNull @Size(max = 255) String email,
+        @NotNull @Size(max = 15) String phone,
+        Integer addressId
+) implements Serializable {}

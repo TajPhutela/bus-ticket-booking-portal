@@ -9,8 +9,11 @@ import java.time.Instant;
 /**
  * DTO for {@link Review}
  */
-public record ReviewDto(Integer id, @NotNull Integer rating, String comment,
-                        Instant reviewDate) implements Serializable {
-}
-
-
+public record ReviewDto(
+        Integer id,
+        @NotNull Integer customerId,
+        @NotNull Integer tripId,
+        @NotNull Integer rating,
+        String comment,
+        Instant reviewDate
+) implements Serializable {}
