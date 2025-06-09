@@ -6,6 +6,7 @@ import com.team4.backend.mapper.BookingMapper;
 import com.team4.backend.dto.response.ApiResponse;
 
 import com.team4.backend.repository.BookingRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,4 +94,24 @@ public class BookingController {
 
         return new ResponseEntity<>(ApiResponse.success(bookingDtos), HttpStatus.OK);
     }
+
+    @PostMapping("")
+    public ResponseEntity<ApiResponse<BookingDto>> addBooking(@Valid @RequestBody BookingDto bookingDto) {
+        Booking booking = bookingRepository.save(bookingMapper.toEntity(bookingDto));
+        return new ResponseEntity<>(
+                ApiResponse.success(
+                        HttpStatus.CREATED.value(),
+                        "Booking Created",
+                        bookingMapper.toDto(booking)
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    @PutMapping("")
+    public ResponseEntity<ApiResponse<BookingDto>> updateBooking(@Valid @RequestBody BookingDto bookingDto) {
+        Booking booking = bookingRepository.save(bookingMapper.toEntity(bookingDto));
+        return ResponseEntity.ok(ApiResponse.success(bookingMapper.toDto(booking)));
+    }
 }
+

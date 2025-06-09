@@ -5,6 +5,7 @@ import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Payment;
 import com.team4.backend.mapper.PaymentMapper;
 import com.team4.backend.repository.PaymentRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,24 @@ public class PaymentController {
     public PaymentController(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
+    }
+
+    @PostMapping("")
+    public ResponseEntity<ApiResponse<PaymentDto>> addPayment(@Valid @RequestBody PaymentDto paymentDto) {
+        Payment payment = paymentRepository.save(paymentMapper.toEntity(paymentDto));
+        return new ResponseEntity<>(
+                ApiResponse.success(HttpStatus.CREATED.value(), "Payment Created", paymentMapper.toDto(payment)),
+                HttpStatus.CREATED
+        );
+    }
+
+    @PutMapping("")
+    public ResponseEntity<ApiResponse<PaymentDto>> updatePayment(@Valid @RequestBody PaymentDto paymentDto) {
+        Payment payment = paymentRepository.save(paymentMapper.toEntity(paymentDto));
+        return new ResponseEntity<>(
+                ApiResponse.success(paymentMapper.toDto(payment)),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("")
