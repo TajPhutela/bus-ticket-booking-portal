@@ -65,7 +65,7 @@ public class BookingController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<ApiResponse<List<BookingDto>>> getBookingsByStatus(@PathVariable("status") String status) {
-        List<Booking> bookings = bookingRepository.findByStatusIgnoreCase(status);
+        List<Booking> bookings = bookingRepository.findByStatus(status);
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found with status " + status), HttpStatus.NOT_FOUND);
         }
