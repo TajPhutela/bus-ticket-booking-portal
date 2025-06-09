@@ -5,6 +5,7 @@ import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Review;
 import com.team4.backend.mapper.ReviewMapper;
 import com.team4.backend.repository.ReviewRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -118,4 +119,26 @@ public class ReviewController {
             );
         }
     }
+
+    @PostMapping("")
+    public ResponseEntity<ApiResponse<ReviewDto>> addReview(@Valid @RequestBody ReviewDto reviewDto) {
+        Review review = reviewRepository.save(reviewMapper.toEntity(reviewDto));
+        return new ResponseEntity<>(
+                ApiResponse.success(
+                        HttpStatus.CREATED.value(),
+                        "Review Created",
+                        reviewMapper.toDto(review)
+                ),
+                HttpStatus.CREATED
+        );
+
+    }
+
+    @PutMapping("")
+    public ResponseEntity<ApiResponse<ReviewDto>> updateReview(@Valid @RequestBody ReviewDto reviewDto) {
+        Review review = reviewRepository.save(reviewMapper.toEntity(reviewDto));
+        return ResponseEntity.ok(ApiResponse.success(reviewMapper.toDto(review)));
+    }
+
+
 }
