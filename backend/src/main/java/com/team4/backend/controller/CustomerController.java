@@ -115,4 +115,15 @@ public class CustomerController {
                 HttpStatus.CREATED
         );
     }
+
+    @PutMapping("")
+    public ResponseEntity<ApiResponse<CustomerDto>> updateCustomer(@Valid @RequestBody CustomerDto customerDto) {
+        Customer customer = customerRepository.save(customerMapper.toEntity(customerDto));
+        CustomerDto updatedCustomerDto = customerMapper.toDto(customer);
+
+        return new ResponseEntity<>(
+                ApiResponse.success(updatedCustomerDto),
+                HttpStatus.OK
+        );
+    }
 }
