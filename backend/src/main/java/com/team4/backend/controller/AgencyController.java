@@ -132,4 +132,30 @@ public class AgencyController {
         return ResponseEntity.ok("Record Updated Successfully.");
     }
 
+    @PostMapping("/addoffice")
+    public ResponseEntity<String> addAgencyOffice(@Valid @RequestBody AgencyOfficeDto requestDto) {
+        AgencyOffice agencyOffice = agencyOfficeMapper.toEntity(requestDto);
+        agencyOfficeRepository.save(agencyOffice);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Record Created Successfully.");
+    }
+
+    @PutMapping("/offices/{office_id}")
+    public ResponseEntity<String> updateAgencyOffice(
+            @PathVariable("office_id") Integer officeId,
+            @RequestBody @Valid AgencyOfficeDto officeDto) {
+
+        Optional<AgencyOffice> existingOfficeOpt = agencyOfficeRepository.findById(officeId);
+
+        if (existingOfficeOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Office not found.");
+        }
+
+        AgencyOffice updatedOffice = agencyOfficeMapper.toEntity(officeDto);
+        updatedOffice.setId(officeId); // Preserve the existing ID
+
+        agencyOfficeRepository.save(updatedOffice);
+
+        return ResponseEntity.ok("Record Updated Successfully.");
+    }
 }
