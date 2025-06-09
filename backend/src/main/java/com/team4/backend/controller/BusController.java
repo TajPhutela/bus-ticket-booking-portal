@@ -1,6 +1,7 @@
 package com.team4.backend.controller;
 
 import com.team4.backend.dto.BusDto;
+import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Bus;
 import com.team4.backend.mapper.BusMapper;
 import com.team4.backend.repository.BusRepository;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/buses")
@@ -27,53 +27,62 @@ public class BusController {
     private BusMapper busMapper;
 
     @GetMapping()
-    public ResponseEntity<List<BusDto>> getAllBusesDetails(){
+    public ResponseEntity<ApiResponse<List<BusDto>>> getAllBusesDetails(){
         List<Bus> buses = busRepository.findAll();
         List<BusDto> busDtos =  buses.stream()
                 .map(busMapper::toDto)
                 .toList();
-        return ResponseEntity.ok(busDtos);
+        return ResponseEntity.ok(ApiResponse.success(busDtos));
     }
 
     @GetMapping("/id/{busId}")
-    public ResponseEntity<BusDto> getBusById(@PathVariable int busId){
+    public ResponseEntity<ApiResponse<BusDto>> getBusById(@PathVariable int busId){
         Optional<Bus> result = busRepository.findById(busId);
         if(result.isPresent()){
             BusDto busDto = busMapper.toDto(result.get());
-            return ResponseEntity.ok(busDto);
+            return ResponseEntity.ok(ApiResponse.success(busDto));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bus with id " + busId));
     }
 
     @GetMapping("/capacity/{capacity}")
-    public ResponseEntity<List<BusDto>> getBusByCapacity(@PathVariable int capacity){
+    public ResponseEntity<ApiResponse<List<BusDto>>> getBusByCapacity(@PathVariable int capacity){
        List<Bus> buses = busRepository.findByCapacity(capacity);
        List<BusDto> busDtos = buses.stream().map(busMapper::toDto).toList();
-       return ResponseEntity.ok(busDtos);
+       if (busDtos.isEmpty()){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No buses with capacity "+capacity));
+       }
+       return ResponseEntity.ok(ApiResponse.success(busDtos));
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<BusDto>> getBusByType(@PathVariable String type){
-        List<Bus> buses = busRepository.findByType(type);
+    public ResponseEntity<ApiResponse<List<BusDto>>> getBusByType(@PathVariable String type){
+        List<Bus> buses = busRepository.findByTypeIgnoreCase(type);
         List<BusDto> busDtos = buses.stream().map(busMapper::toDto).toList();
-        return ResponseEntity.ok(busDtos);
+        if(busDtos.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No buses with type "+type));
+        }
+        return ResponseEntity.ok(ApiResponse.success(busDtos));
     }
 
     @GetMapping("/registration-number/{registrationNumber}")
-    public ResponseEntity<BusDto> getBusByRegistrationNumber(@PathVariable String registrationNumber){
+    public ResponseEntity<ApiResponse<BusDto>> getBusByRegistrationNumber(@PathVariable String registrationNumber){
         Optional<Bus> bus = busRepository.findByRegistrationNumber(registrationNumber);
         if(bus.isPresent()){
             BusDto busDto = busMapper.toDto(bus.get());
-            return ResponseEntity.ok(busDto);
+            return ResponseEntity.ok(ApiResponse.success(busDto));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(HttpStatus.NOT_FOUND.value(),"Bus with registration number "+registrationNumber+" not found"));
     }
 
     @GetMapping("/office-id/{officeId}")
-    public ResponseEntity<List<BusDto>> getBusByOfficeId(@PathVariable int officeId){
+    public ResponseEntity<ApiResponse<List<BusDto>>> getBusByOfficeId(@PathVariable int officeId){
          List<Bus> buses = busRepository.findByOfficeId(officeId);
          List<BusDto> busDtos = buses.stream().map(busMapper::toDto).toList();
-         return ResponseEntity.ok(busDtos);
+         if (busDtos.isEmpty()){
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No buses with office id "+officeId));
+         }
+         return ResponseEntity.ok(ApiResponse.success(busDtos));
     }
 
 }
