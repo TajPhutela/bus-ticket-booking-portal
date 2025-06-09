@@ -134,11 +134,27 @@ public class ReviewController {
 
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<ReviewDto>> updateReview(@Valid @RequestBody ReviewDto reviewDto) {
-        Review review = reviewRepository.save(reviewMapper.toEntity(reviewDto));
-        return ResponseEntity.ok(ApiResponse.success(reviewMapper.toDto(review)));
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ReviewDto>> updateReview(
+            @PathVariable Integer id,
+            @Valid @RequestBody ReviewDto reviewDto) {
+
+        if (!reviewRepository.existsById(id)) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Review with ID " + id + " not found"),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        Review review = reviewMapper.toEntity(reviewDto);
+        review.setId(id);
+        Review saved = reviewRepository.save(review);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(HttpStatus.OK.value(), "Review updated successfully", reviewMapper.toDto(saved))
+        );
     }
+
 
 
 }

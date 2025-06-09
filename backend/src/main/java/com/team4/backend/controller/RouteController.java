@@ -5,11 +5,13 @@ import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Route;
 import com.team4.backend.mapper.RouteMapper;
 import com.team4.backend.repository.routeRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/routes")
@@ -78,13 +80,21 @@ public class RouteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<RouteDto>> updateRoute(@PathVariable Integer id, @RequestBody RouteDto routeDto) {
-        return routeRepository.findById(id)
-                .map(existingRoute -> {
-                    Route updated = routeMapper.partialUpdate(routeDto, existingRoute);
-                    Route saved = routeRepository.save(updated);
-                    return ResponseEntity.ok(ApiResponse.success(routeMapper.toDto(saved)));
-                })
-                .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Route not found"), HttpStatus.NOT_FOUND));
+    public ResponseEntity<ApiResponse<RouteDto>> updateRoute(@PathVariable("id") Integer routeId,
+                                                             @Valid @RequestBody RouteDto routeDto) {
+        Optional<Route> existingRouteOpt = routeRepository.findById(routeId);
+
+        if (existingRouteOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(404, "Route not found."));
+        }
+
+        Route updatedRoute = routeMapper.toEntity(routeDto);
+        updatedRoute.setId(routeId);
+
+        Route savedRoute = routeRepository.save(updatedRoute);
+
+        return ResponseEntity.ok(ApiResponse.success(routeMapper.toDto(savedRoute)));
     }
+
 }

@@ -177,11 +177,22 @@ public class TripController {
                 HttpStatus.CREATED);
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<TripDto>> updateTrip(@Valid @RequestBody TripDto tripDto) {
-        Trip trip = tripRepository.save(tripMapper.toEntity(tripDto));
-        return new ResponseEntity<>(
-                ApiResponse.success(tripMapper.toDto(trip)),
-                HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TripDto>> updateTrip(@PathVariable Integer id,
+                                                           @Valid @RequestBody TripDto tripDto) {
+        Optional<Trip> existingTripOpt = tripRepository.findById(id);
+
+        if (existingTripOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(404, "Trip not found"));
+        }
+
+        Trip updatedTrip = tripMapper.toEntity(tripDto);
+        updatedTrip.setId(id);
+
+        Trip savedTrip = tripRepository.save(updatedTrip);
+
+        return ResponseEntity.ok(ApiResponse.success(tripMapper.toDto(savedTrip)));
     }
+
 }

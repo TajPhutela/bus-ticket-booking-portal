@@ -108,10 +108,27 @@ public class BookingController {
         );
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<BookingDto>> updateBooking(@Valid @RequestBody BookingDto bookingDto) {
-        Booking booking = bookingRepository.save(bookingMapper.toEntity(bookingDto));
-        return ResponseEntity.ok(ApiResponse.success(bookingMapper.toDto(booking)));
+    @PutMapping("/{booking_id}")
+    public ResponseEntity<ApiResponse<BookingDto>> updateBooking(
+            @PathVariable("booking_id") Integer bookingId,
+            @Valid @RequestBody BookingDto bookingDto) {
+
+        if (!bookingRepository.existsById(bookingId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Booking not found"));
+        }
+
+        Booking booking = bookingMapper.toEntity(bookingDto);
+        booking.setId(bookingId);
+
+        Booking updated = bookingRepository.save(booking);
+
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Booking updated successfully",
+                bookingMapper.toDto(updated)
+        ));
     }
+
 }
 

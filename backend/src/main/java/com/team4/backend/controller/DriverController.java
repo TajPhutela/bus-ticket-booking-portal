@@ -78,13 +78,21 @@ public class DriverController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<DriverDto>> updateDriver(@PathVariable Integer id, @RequestBody DriverDto driverDto) {
+    public ResponseEntity<ApiResponse<DriverDto>> updateDriver(
+            @PathVariable Integer id,
+            @RequestBody DriverDto driverDto) {
+
         return driverRepository.findById(id)
                 .map(existingDriver -> {
                     Driver updated = driverMapper.partialUpdate(driverDto, existingDriver);
                     Driver saved = driverRepository.save(updated);
-                    return ResponseEntity.ok(ApiResponse.success(saved != null ? driverMapper.toDto(saved) : null));
+                    return ResponseEntity.ok(
+                            ApiResponse.success(HttpStatus.OK.value(), "Driver updated successfully", driverMapper.toDto(saved))
+                    );
                 })
-                .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Driver not found"), HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(
+                        ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Driver not found"),
+                        HttpStatus.NOT_FOUND));
     }
+
 }

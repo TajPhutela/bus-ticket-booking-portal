@@ -40,19 +40,25 @@ public class AddressController {
         );
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<AddressDto>> updateAddress(@Valid @RequestBody AddressDto addressDto) {
-        if (addressDto.id() == null || !addressRepository.existsById(addressDto.id())) {
-            return new ResponseEntity<>(ApiResponse.error(
-                    HttpStatus.NOT_FOUND.value(),
-                    "Address ID is missing or does not exist"), HttpStatus.NOT_FOUND);
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<AddressDto>> updateAddress(@PathVariable Integer id, @Valid @RequestBody AddressDto addressDto) {
+        if (!addressRepository.existsById(id)) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Address with ID " + id + " not found"),
+                    HttpStatus.NOT_FOUND
+            );
         }
-        Address updated = addressRepository.save(addressMapper.toEntity(addressDto));
-        return new ResponseEntity<>(ApiResponse.success(
-                HttpStatus.OK.value(),
-                "Address updated successfully",
-                addressMapper.toDto(updated)), HttpStatus.OK);
+
+        Address address = addressMapper.toEntity(addressDto);
+        address.setId(id);
+
+        Address updated = addressRepository.save(address);
+        return new ResponseEntity<>(
+                ApiResponse.success(HttpStatus.OK.value(), "Address updated successfully", addressMapper.toDto(updated)),
+                HttpStatus.OK
+        );
     }
+
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<AddressDto>>> getAllAddresses() {

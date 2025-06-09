@@ -36,14 +36,27 @@ public class PaymentController {
         );
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<PaymentDto>> updatePayment(@Valid @RequestBody PaymentDto paymentDto) {
-        Payment payment = paymentRepository.save(paymentMapper.toEntity(paymentDto));
-        return new ResponseEntity<>(
-                ApiResponse.success(paymentMapper.toDto(payment)),
-                HttpStatus.OK
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PaymentDto>> updatePayment(
+            @PathVariable Integer id,
+            @Valid @RequestBody PaymentDto paymentDto) {
+
+        if (!paymentRepository.existsById(id)) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Payment with ID " + id + " not found"),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        Payment payment = paymentMapper.toEntity(paymentDto);
+        payment.setId(id);
+        Payment saved = paymentRepository.save(payment);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(HttpStatus.OK.value(), "Payment updated successfully", paymentMapper.toDto(saved))
         );
     }
+
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<PaymentDto>>> getAllPayments() {

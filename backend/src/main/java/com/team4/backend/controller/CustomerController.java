@@ -116,14 +116,25 @@ public class CustomerController {
         );
     }
 
-    @PutMapping("")
-    public ResponseEntity<ApiResponse<CustomerDto>> updateCustomer(@Valid @RequestBody CustomerDto customerDto) {
-        Customer customer = customerRepository.save(customerMapper.toEntity(customerDto));
-        CustomerDto updatedCustomerDto = customerMapper.toDto(customer);
+    @PutMapping("/{customer_id}")
+    public ResponseEntity<ApiResponse<CustomerDto>> updateCustomer(
+            @PathVariable("customer_id") Integer customerId,
+            @Valid @RequestBody CustomerDto customerDto) {
 
-        return new ResponseEntity<>(
-                ApiResponse.success(updatedCustomerDto),
-                HttpStatus.OK
+        if (!customerRepository.existsById(customerId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customer not found"));
+        }
+
+        Customer customer = customerMapper.toEntity(customerDto);
+        customer.setId(customerId);
+        Customer updated = customerRepository.save(customer);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(HttpStatus.OK.value(),
+                        "Customer updated successfully",
+                        customerMapper.toDto(updated))
         );
     }
+
 }

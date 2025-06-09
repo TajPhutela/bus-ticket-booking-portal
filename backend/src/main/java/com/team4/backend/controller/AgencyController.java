@@ -107,7 +107,7 @@ public class AgencyController {
     }
 
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<String> createAgency(@RequestBody @Valid AgencyDto agencyDto) {
         Agency agency = agencyMapper.toEntity(agencyDto);
         agencyRepository.save(agency);
@@ -115,24 +115,24 @@ public class AgencyController {
     }
 
     @PutMapping("/{agency_id}")
-    public ResponseEntity<String> updateAgency(@PathVariable("agency_id") Integer agencyId,
-                                               @RequestBody @Valid AgencyDto agencyDto) {
-        Optional<Agency> existingAgencyOpt = agencyRepository.findById(agencyId);
-
-        if (existingAgencyOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Agency not found.");
-        }
-
-        Agency existingAgency = existingAgencyOpt.get();
-        Agency updatedAgency = agencyMapper.toEntity(agencyDto);
-        updatedAgency.setId(agencyId);
-
-        agencyRepository.save(updatedAgency);
-
-        return ResponseEntity.ok("Record Updated Successfully.");
+    public ResponseEntity<ApiResponse<AgencyDto>> updateAgency(@PathVariable("agency_id") Integer agencyId,
+                                                               @RequestBody @Valid AgencyDto agencyDto) {
+        return agencyRepository.findById(agencyId)
+                .map(existingAgency -> {
+                    Agency updatedAgency = agencyMapper.toEntity(agencyDto);
+                    updatedAgency.setId(agencyId);
+                    Agency savedAgency = agencyRepository.save(updatedAgency);
+                    return ResponseEntity.ok(
+                            ApiResponse.success(HttpStatus.OK.value(), "Agency updated successfully", agencyMapper.toDto(savedAgency))
+                    );
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Agency not found")
+                ));
     }
 
-    @PostMapping("/addoffice")
+
+    @PostMapping("/office")
     public ResponseEntity<String> addAgencyOffice(@Valid @RequestBody AgencyOfficeDto requestDto) {
         AgencyOffice agencyOffice = agencyOfficeMapper.toEntity(requestDto);
         agencyOfficeRepository.save(agencyOffice);
@@ -141,21 +141,22 @@ public class AgencyController {
     }
 
     @PutMapping("/offices/{office_id}")
-    public ResponseEntity<String> updateAgencyOffice(
+    public ResponseEntity<ApiResponse<AgencyOfficeDto>> updateAgencyOffice(
             @PathVariable("office_id") Integer officeId,
             @RequestBody @Valid AgencyOfficeDto officeDto) {
 
-        Optional<AgencyOffice> existingOfficeOpt = agencyOfficeRepository.findById(officeId);
-
-        if (existingOfficeOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Office not found.");
-        }
-
-        AgencyOffice updatedOffice = agencyOfficeMapper.toEntity(officeDto);
-        updatedOffice.setId(officeId); // Preserve the existing ID
-
-        agencyOfficeRepository.save(updatedOffice);
-
-        return ResponseEntity.ok("Record Updated Successfully.");
+        return agencyOfficeRepository.findById(officeId)
+                .map(existingOffice -> {
+                    AgencyOffice updatedOffice = agencyOfficeMapper.toEntity(officeDto);
+                    updatedOffice.setId(officeId);
+                    AgencyOffice savedOffice = agencyOfficeRepository.save(updatedOffice);
+                    return ResponseEntity.ok(
+                            ApiResponse.success(HttpStatus.OK.value(), "Office updated successfully", agencyOfficeMapper.toDto(savedOffice))
+                    );
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Office not found")
+                ));
     }
+
 }
