@@ -85,7 +85,7 @@ public class BusController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<BusDto>> createBus(@RequestBody @Valid BusDto busDto){
+    public ResponseEntity<ApiResponse<BusDto>> addBus(@RequestBody @Valid BusDto busDto){
         try{
             if(busDto.id()==null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -108,4 +108,33 @@ public class BusController {
         }
     }
 
+    @PutMapping("{busId}")
+    public ResponseEntity<ApiResponse<BusDto>> updateBus(@PathVariable int busId, @RequestBody @Valid BusDto busDto){
+        //check if id and busId matches, and id should not null
+        if (busDto.id() != null && !busDto.id().equals(busId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Bus ID in path and body must match "));
+        }
+        Optional<Bus> optionalExistingBus = busRepository.findById(busId);
+        //check if bus exists
+        if(optionalExistingBus.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(),"Bus with id "+busId+" not found"));
+        }
+
+        try {
+            Bus existingBus = optionalExistingBus.get();
+            //apply updates from busDto to existing bus(ignore null fields)
+            busMapper.partialUpdate(busDto, existingBus);
+
+            //save updated bus
+            Bus updatedBus = busRepository.save(existingBus);
+
+            BusDto savedBusDto = busMapper.toDto(updatedBus);
+            return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Bus updated successfully", savedBusDto));
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(),e.getMessage()));
+        }
+    }
 }
