@@ -12,7 +12,7 @@ public interface BusRepository extends JpaRepository<Bus, Integer> {
 
     List<Bus> findByCapacity(int capacity);
 
-    List<Bus> findByType(String type);
+    List<Bus> findByTypeIgnoreCase(String type);
 
     Optional<Bus> findByRegistrationNumber(String registrationNumber);
 
