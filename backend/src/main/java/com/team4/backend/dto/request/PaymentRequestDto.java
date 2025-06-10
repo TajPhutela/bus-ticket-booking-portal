@@ -12,7 +12,7 @@ import java.time.Instant;
  */
 public record PaymentRequestDto(
         Integer id,
-        @NotNull Integer bookingId,
+        @NotNull BookingRequestDto booking,
         Integer customerId,
         BigDecimal amount,
         Instant paymentDate,
