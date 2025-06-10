@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/payment")
@@ -70,7 +69,7 @@ public class PaymentController {
         List<Payment> payments = paymentRepository.findAll();
         List<PaymentResponseDto> responseDtos = payments.stream()
                 .map(paymentMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(ApiResponse.success(responseDtos));
     }

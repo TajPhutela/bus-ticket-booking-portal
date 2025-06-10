@@ -8,7 +8,6 @@ import com.team4.backend.mapper.BusMapper;
 import com.team4.backend.repository.BusRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +19,13 @@ import java.util.Optional;
 @RequestMapping("/api/buses")
 public class BusController {
 
-    @Autowired
-    private BusRepository busRepository;
+    private final BusRepository busRepository;
+    private final BusMapper busMapper;
 
-    @Autowired
-    private BusMapper busMapper;
+    public BusController(BusRepository busRepository, BusMapper busMapper) {
+        this.busRepository = busRepository;
+        this.busMapper = busMapper;
+    }
 
     @GetMapping()
     public ResponseEntity<ApiResponse<List<BusResponseDto>>> getAllBusesDetails() {

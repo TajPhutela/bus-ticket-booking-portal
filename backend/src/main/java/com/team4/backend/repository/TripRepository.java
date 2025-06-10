@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Integer> {
@@ -26,5 +25,5 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
 
     List<Trip> findByRoute_FromCityAndRoute_ToCityAndTripDate(String fromCity, String toCity, Instant tripDate);
 
-    List<Trip> findByRoute_FromCityAndRoute_ToCityAndTripDateAndBus_Type(String fromCity, String toCity, Instant tripDate, String bus_Type);
+    List<Trip> findByRoute_FromCityAndRoute_ToCityAndTripDateAndBus_Type(String fromCity, String toCity, Instant tripDate, String busType);
 }

@@ -8,31 +8,31 @@ import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.repository.BookingRepository;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/bookings")
 public class BookingController {
 
-    @Autowired
-    private BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
 
-    @Autowired
-    private BookingMapper bookingMapper;
+    public BookingController(BookingRepository bookingRepository, BookingMapper bookingMapper) {
+        this.bookingRepository = bookingRepository;
+        this.bookingMapper = bookingMapper;
+    }
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<BookingResponseDto>>> getAllBookings() {
         List<Booking> bookings = bookingRepository.findAll();
         List<BookingResponseDto> bookingResponseDtos = bookings.stream()
                 .map(bookingMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
 
         return new ResponseEntity<>(ApiResponse.success(bookingResponseDtos), HttpStatus.OK);
     }
@@ -54,7 +54,7 @@ public class BookingController {
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found for trip ID " + tripId), HttpStatus.NOT_FOUND);
         }
-        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).collect(Collectors.toList());
+        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
@@ -64,7 +64,7 @@ public class BookingController {
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found with status " + status), HttpStatus.NOT_FOUND);
         }
-        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).collect(Collectors.toList());
+        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
@@ -74,7 +74,7 @@ public class BookingController {
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found with seat number " + seatNumber), HttpStatus.NOT_FOUND);
         }
-        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).collect(Collectors.toList());
+        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
