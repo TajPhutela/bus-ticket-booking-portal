@@ -117,6 +117,13 @@ public class ReviewController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<ReviewResponseDto>> addReview(@Valid @RequestBody ReviewRequestDto reviewRequestDto) {
+        if (reviewRequestDto.id() != null && reviewRepository.existsById(reviewRequestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Review with ID " + reviewRequestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         Review review = reviewRepository.save(reviewMapper.toEntity(reviewRequestDto));
         return new ResponseEntity<>(
                 ApiResponse.success(

@@ -96,6 +96,11 @@ public class CustomerController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<CustomerResponseDto>> addCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto) {
+        if (customerRequestDto.id() != null && customerRepository.existsById(customerRequestDto.id())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Customer with ID " + customerRequestDto.id() + " already exists"));
+        }
+
         Customer saved = customerRepository.save(customerMapper.toEntity(customerRequestDto));
         CustomerResponseDto dto = customerMapper.toResponseDto(saved);
 

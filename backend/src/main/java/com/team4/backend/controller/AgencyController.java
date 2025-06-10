@@ -112,10 +112,18 @@ public class AgencyController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createAgency(@RequestBody @Valid AgencyRequestDto agencyRequestDto) {
+    public ResponseEntity<ApiResponse<AgencyResponseDto>> createAgency(@RequestBody @Valid AgencyRequestDto agencyRequestDto) {
+        if (agencyRequestDto.id() != null && agencyRepository.existsById(agencyRequestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Agency with ID " + agencyRequestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         Agency agency = agencyMapper.toEntity(agencyRequestDto);
-        agencyRepository.save(agency);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Record Created Successfully");
+        agency = agencyRepository.save(agency);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED.value(), "Agency Created", agencyMapper.toResponseDto(agency)));
     }
 
     @PutMapping("/{agency_id}")
@@ -136,10 +144,18 @@ public class AgencyController {
     }
 
     @PostMapping("/office")
-    public ResponseEntity<String> addAgencyOffice(@Valid @RequestBody AgencyOfficeRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<AgencyOfficeResponseDto>> addAgencyOffice(@Valid @RequestBody AgencyOfficeRequestDto requestDto) {
+        if (requestDto.id() != null && agencyOfficeRepository.existsById(requestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Agency Office with ID " + requestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         AgencyOffice agencyOffice = agencyOfficeMapper.toEntity(requestDto);
-        agencyOfficeRepository.save(agencyOffice);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Record Created Successfully.");
+        agencyOffice = agencyOfficeRepository.save(agencyOffice);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED.value(), "Agency Office Created", agencyOfficeMapper.toResponseDto(agencyOffice)));
     }
 
     @PutMapping("/offices/{office_id}")

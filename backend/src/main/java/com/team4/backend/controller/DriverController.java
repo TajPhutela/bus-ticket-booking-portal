@@ -73,6 +73,11 @@ public class DriverController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<DriverResponseDto>> addDriver(@RequestBody DriverRequestDto driverRequestDto) {
+        if (driverRequestDto.id() != null && driverRepository.existsById(driverRequestDto.id())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Driver with ID " + driverRequestDto.id() + " already exists"));
+        }
+
         Driver savedDriver = driverRepository.save(driverMapper.toEntity(driverRequestDto));
         DriverResponseDto responseDto = driverMapper.toResponseDto(savedDriver);
         return ResponseEntity.status(HttpStatus.CREATED)

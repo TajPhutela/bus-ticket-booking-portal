@@ -99,8 +99,8 @@ public class BusController {
             }
 
             if (busRepository.existsById(busRequestDto.id())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(ApiResponse.error(HttpStatus.CONFLICT.value(), "Bus with id " + busRequestDto.id() + " already exists"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Bus with id " + busRequestDto.id() + " already exists"));
             }
 
             Bus saved = busRepository.save(busMapper.toEntity(busRequestDto));

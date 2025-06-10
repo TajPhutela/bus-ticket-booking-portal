@@ -28,6 +28,13 @@ public class AddressController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<AddressResponseDto>> createAddress(@Valid @RequestBody AddressRequestDto addressRequestDto) {
+        if (addressRequestDto.id() != null && addressRepository.existsById(addressRequestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Address with ID " + addressRequestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         Address address = addressMapper.toEntity(addressRequestDto);
         Address saved = addressRepository.save(address);
         return new ResponseEntity<>(
