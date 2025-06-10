@@ -2,6 +2,7 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.TripRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.TripResponseDto;
 import com.team4.backend.entities.Trip;
 import com.team4.backend.mapper.TripMapper;
 import com.team4.backend.repository.TripRepository;
@@ -27,20 +28,20 @@ public class TripController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getAllTrips() {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getAllTrips() {
         List<Trip> trips = tripRepository.findAll();
 
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
 
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TripRequestDto>> getTripById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<TripResponseDto>> getTripById(@PathVariable int id) {
         Optional<Trip> trip = tripRepository.findById(id);
         if (trip.isPresent()) {
-            TripRequestDto tripRequestDto = tripMapper.toDto(trip.get());
-            return new ResponseEntity<>(ApiResponse.success(tripRequestDto), HttpStatus.OK);
+            TripResponseDto tripResponseDto = tripMapper.toResponseDto(trip.get());
+            return new ResponseEntity<>(ApiResponse.success(tripResponseDto), HttpStatus.OK);
         }
         return new ResponseEntity<>(
                 ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Trip with Id " + id + " not found"),
@@ -48,7 +49,7 @@ public class TripController {
     }
 
     @GetMapping("/routes/{route_id}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByRouteId(@PathVariable int route_id) {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByRouteId(@PathVariable int route_id) {
         List<Trip> trip = tripRepository.findByRouteId(route_id);
 
         if (trip.isEmpty()) {
@@ -56,72 +57,72 @@ public class TripController {
                     "Trips with RouteId " + route_id + " not found"), HttpStatus.NOT_FOUND);
         }
 
-        List<TripRequestDto> tripRequestDtos = trip.stream().map(tripMapper::toDto).toList();
+        List<TripResponseDto> tripRequestDtos = trip.stream().map(tripMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
     }
 
     @GetMapping("/buses/{bus_id}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByBusId(@PathVariable int bus_id) {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByBusId(@PathVariable int bus_id) {
         List<Trip> trip = tripRepository.findByBusId(bus_id);
         if (trip.isEmpty()) {
             return new ResponseEntity<>(
                     ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Trips with BusId " + bus_id + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trip.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trip.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/trip_date/{trip_date}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByTripDate(@PathVariable Instant trip_date) {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByTripDate(@PathVariable Instant trip_date) {
         List<Trip> trip = tripRepository.findByTripDate(trip_date);
         if (trip.isEmpty()) {
             return new ResponseEntity<>(
                     ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Trips on date " + trip_date + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trip.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trip.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/from_city/{from_city}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByFromCity(@PathVariable String from_city) {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByFromCity(@PathVariable String from_city) {
         List<Trip> trips = tripRepository.findByRoute_FromCity(from_city);
         if (trips.isEmpty()) {
             return new ResponseEntity<>(
                     ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Trips from city " + from_city + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/to_city/{to_city}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByToCity(@PathVariable String to_city) {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByToCity(@PathVariable String to_city) {
         List<Trip> trips = tripRepository.findByRoute_ToCity(to_city);
         if (trips.isEmpty()) {
             return new ResponseEntity<>(
                     ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Trips to city " + to_city + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/bus_type/{bus_type}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByBusType(@PathVariable String bus_type) {
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByBusType(@PathVariable String bus_type) {
         List<Trip> trips = tripRepository.findByBus_Type(bus_type);
         if (trips.isEmpty()) {
             return new ResponseEntity<>(
                     ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Trips with bus type " + bus_type + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/{from_city}/{to_city}/{trip_date}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByFromToCityAndDate(@PathVariable String from_city,
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByFromToCityAndDate(@PathVariable String from_city,
                                                                                          @PathVariable String to_city,
                                                                                          @PathVariable Instant trip_date) {
         List<Trip> trips = tripRepository.findByRoute_FromCityAndRoute_ToCityAndTripDate(from_city, to_city, trip_date);
@@ -131,12 +132,12 @@ public class TripController {
                             "Trips from city " + from_city + " to " + to_city + " on date " + trip_date + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/{from_city}/{to_city}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByFromToCityAndDate(@PathVariable String from_city,
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByFromToCityAndDate(@PathVariable String from_city,
                                                                                          @PathVariable String to_city) {
         List<Trip> trips = tripRepository.findByRoute_FromCityAndRoute_ToCity(from_city, to_city);
         if (trips.isEmpty()) {
@@ -145,12 +146,12 @@ public class TripController {
                             "Trips from city " + from_city + " to " + to_city + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @GetMapping("/{from_city}/{to_city}/{trip_date}/{bus_type}")
-    public ResponseEntity<ApiResponse<List<TripRequestDto>>> getTripsByFromToCityAndDate(@PathVariable String from_city,
+    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTripsByFromToCityAndDate(@PathVariable String from_city,
                                                                                          @PathVariable String to_city,
                                                                                          @PathVariable Instant trip_date,
                                                                                          @PathVariable String bus_type ){
@@ -161,24 +162,24 @@ public class TripController {
                             "Trips from city " + from_city + " to " + to_city + " on date " + trip_date + " with bus type " + bus_type + " not found"),
                     HttpStatus.NOT_FOUND);
         }
-        List<TripRequestDto> tripRequestDtos = trips.stream().map(tripMapper::toDto).toList();
-        return new ResponseEntity<>(ApiResponse.success(tripRequestDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<TripRequestDto>> addTrip(@Valid @RequestBody TripRequestDto tripRequestDto) {
+    public ResponseEntity<ApiResponse<TripResponseDto>> addTrip(@Valid @RequestBody TripRequestDto tripRequestDto) {
         Trip trip = tripRepository.save(tripMapper.toEntity(tripRequestDto));
         return new ResponseEntity<>(
                 ApiResponse.success(
                         HttpStatus.CREATED.value(),
                         "Trip Created",
-                        tripMapper.toDto(trip)
+                        tripMapper.toResponseDto(trip)
                 ),
                 HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<TripRequestDto>> updateTrip(@PathVariable Integer id,
+    public ResponseEntity<ApiResponse<TripResponseDto>> updateTrip(@PathVariable Integer id,
                                                                   @Valid @RequestBody TripRequestDto tripRequestDto) {
         Optional<Trip> existingTripOpt = tripRepository.findById(id);
 
@@ -192,7 +193,7 @@ public class TripController {
 
         Trip savedTrip = tripRepository.save(updatedTrip);
 
-        return ResponseEntity.ok(ApiResponse.success(tripMapper.toDto(savedTrip)));
+        return ResponseEntity.ok(ApiResponse.success(tripMapper.toResponseDto(savedTrip)));
     }
 
 }

@@ -2,6 +2,8 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.AgencyOfficeRequestDto;
 import com.team4.backend.dto.request.AgencyRequestDto;
+import com.team4.backend.dto.response.AgencyOfficeResponseDto;
+import com.team4.backend.dto.response.AgencyResponseDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.entities.Agency;
 import com.team4.backend.entities.AgencyOffice;
@@ -21,90 +23,93 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/agencies")
 public class AgencyController {
+
     @Autowired
     private AgencyRepository agencyRepository;
+
     @Autowired
     private AgencyOfficeRepository agencyOfficeRepository;
+
     @Autowired
     private AgencyMapper agencyMapper;
+
     @Autowired
     private AgencyOfficeMapper agencyOfficeMapper;
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<AgencyRequestDto>>> getAllAgencies() {
+    public ResponseEntity<ApiResponse<List<AgencyResponseDto>>> getAllAgencies() {
         List<Agency> agencies = agencyRepository.findAll();
         if (agencies.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No agencies found"));
         }
-        List<AgencyRequestDto> agencyRequestDtos = agencies.stream().map(agencyMapper::toDto).toList();
-        return ResponseEntity.ok(ApiResponse.success(agencyRequestDtos));
+        List<AgencyResponseDto> dtoList = agencies.stream().map(agencyMapper::toResponseDto).toList();
+        return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AgencyRequestDto>> getAgencyById(@PathVariable("id") Integer agencyId) {
+    public ResponseEntity<ApiResponse<AgencyResponseDto>> getAgencyById(@PathVariable("id") Integer agencyId) {
         Optional<Agency> agency = agencyRepository.findById(agencyId);
         if (agency.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Agency not found with id " + agencyId));
         }
-        return ResponseEntity.ok(ApiResponse.success(agencyMapper.toDto(agency.get())));
+        return ResponseEntity.ok(ApiResponse.success(agencyMapper.toResponseDto(agency.get())));
     }
 
     @GetMapping("/offices")
-    public ResponseEntity<ApiResponse<List<AgencyOfficeRequestDto>>> getOffices() {
+    public ResponseEntity<ApiResponse<List<AgencyOfficeResponseDto>>> getOffices() {
         List<AgencyOffice> offices = agencyOfficeRepository.findAll();
         if (offices.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No agency offices found"));
         }
-        List<AgencyOfficeRequestDto> dtoList = offices.stream().map(agencyOfficeMapper::toDto).toList();
+        List<AgencyOfficeResponseDto> dtoList = offices.stream().map(agencyOfficeMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
 
     @GetMapping("/offices/agency_id/{agency}")
-    public ResponseEntity<ApiResponse<List<AgencyOfficeRequestDto>>> getOfficesByAgencyId(@PathVariable("agency") Integer agencyId) {
+    public ResponseEntity<ApiResponse<List<AgencyOfficeResponseDto>>> getOfficesByAgencyId(@PathVariable("agency") Integer agencyId) {
         List<AgencyOffice> offices = agencyOfficeRepository.findByAgencyId(agencyId);
         if (offices.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No offices found for agency ID " + agencyId));
         }
-        List<AgencyOfficeRequestDto> dtoList = offices.stream().map(agencyOfficeMapper::toDto).toList();
+        List<AgencyOfficeResponseDto> dtoList = offices.stream().map(agencyOfficeMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
 
     @GetMapping("/offices/{id}")
-    public ResponseEntity<ApiResponse<AgencyOfficeRequestDto>> getOfficeById(@PathVariable("id") Integer officeId) {
+    public ResponseEntity<ApiResponse<AgencyOfficeResponseDto>> getOfficeById(@PathVariable("id") Integer officeId) {
         Optional<AgencyOffice> officeOpt = agencyOfficeRepository.findById(officeId);
         if (officeOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Office not found with id " + officeId));
         }
-        return ResponseEntity.ok(ApiResponse.success(agencyOfficeMapper.toDto(officeOpt.get())));
+        return ResponseEntity.ok(ApiResponse.success(agencyOfficeMapper.toResponseDto(officeOpt.get())));
     }
 
     @GetMapping("/offices/email/{email}")
-    public ResponseEntity<ApiResponse<List<AgencyOfficeRequestDto>>> getOfficeEmails(@PathVariable("email") String emailId) {
+    public ResponseEntity<ApiResponse<List<AgencyOfficeResponseDto>>> getOfficeEmails(@PathVariable("email") String emailId) {
         List<AgencyOffice> offices = agencyOfficeRepository.findByOfficeMail(emailId);
         if (offices.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No offices found with email " + emailId));
         }
-        List<AgencyOfficeRequestDto> dtoList = offices.stream().map(agencyOfficeMapper::toDto).toList();
+        List<AgencyOfficeResponseDto> dtoList = offices.stream().map(agencyOfficeMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<ApiResponse<List<AgencyRequestDto>>> getEmails(@PathVariable("email") String email) {
+    public ResponseEntity<ApiResponse<List<AgencyResponseDto>>> getEmails(@PathVariable("email") String email) {
         List<Agency> agencies = agencyRepository.findByEmail(email);
         if (agencies.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No agencies found with email " + email));
         }
-        List<AgencyRequestDto> dtoList = agencies.stream().map(agencyMapper::toDto).toList();
+        List<AgencyResponseDto> dtoList = agencies.stream().map(agencyMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtoList));
     }
-
 
     @PostMapping("")
     public ResponseEntity<String> createAgency(@RequestBody @Valid AgencyRequestDto agencyRequestDto) {
@@ -114,15 +119,15 @@ public class AgencyController {
     }
 
     @PutMapping("/{agency_id}")
-    public ResponseEntity<ApiResponse<AgencyRequestDto>> updateAgency(@PathVariable("agency_id") Integer agencyId,
-                                                                      @RequestBody @Valid AgencyRequestDto agencyRequestDto) {
+    public ResponseEntity<ApiResponse<AgencyResponseDto>> updateAgency(@PathVariable("agency_id") Integer agencyId,
+                                                                       @RequestBody @Valid AgencyRequestDto agencyRequestDto) {
         return agencyRepository.findById(agencyId)
                 .map(existingAgency -> {
                     Agency updatedAgency = agencyMapper.toEntity(agencyRequestDto);
                     updatedAgency.setId(agencyId);
                     Agency savedAgency = agencyRepository.save(updatedAgency);
                     return ResponseEntity.ok(
-                            ApiResponse.success(HttpStatus.OK.value(), "Agency updated successfully", agencyMapper.toDto(savedAgency))
+                            ApiResponse.success(HttpStatus.OK.value(), "Agency updated successfully", agencyMapper.toResponseDto(savedAgency))
                     );
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -130,17 +135,15 @@ public class AgencyController {
                 ));
     }
 
-
     @PostMapping("/office")
     public ResponseEntity<String> addAgencyOffice(@Valid @RequestBody AgencyOfficeRequestDto requestDto) {
         AgencyOffice agencyOffice = agencyOfficeMapper.toEntity(requestDto);
         agencyOfficeRepository.save(agencyOffice);
-
         return ResponseEntity.status(HttpStatus.CREATED).body("Record Created Successfully.");
     }
 
     @PutMapping("/offices/{office_id}")
-    public ResponseEntity<ApiResponse<AgencyOfficeRequestDto>> updateAgencyOffice(
+    public ResponseEntity<ApiResponse<AgencyOfficeResponseDto>> updateAgencyOffice(
             @PathVariable("office_id") Integer officeId,
             @RequestBody @Valid AgencyOfficeRequestDto officeDto) {
 
@@ -150,12 +153,11 @@ public class AgencyController {
                     updatedOffice.setId(officeId);
                     AgencyOffice savedOffice = agencyOfficeRepository.save(updatedOffice);
                     return ResponseEntity.ok(
-                            ApiResponse.success(HttpStatus.OK.value(), "Office updated successfully", agencyOfficeMapper.toDto(savedOffice))
+                            ApiResponse.success(HttpStatus.OK.value(), "Office updated successfully", agencyOfficeMapper.toResponseDto(savedOffice))
                     );
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                         ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Office not found")
                 ));
     }
-
 }

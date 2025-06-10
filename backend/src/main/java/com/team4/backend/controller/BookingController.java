@@ -1,11 +1,12 @@
 package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.BookingRequestDto;
+import com.team4.backend.dto.response.BookingResponseDto;
 import com.team4.backend.entities.Booking;
 import com.team4.backend.mapper.BookingMapper;
 import com.team4.backend.dto.response.ApiResponse;
-
 import com.team4.backend.repository.BookingRepository;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,90 +27,65 @@ public class BookingController {
     @Autowired
     private BookingMapper bookingMapper;
 
-
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<BookingRequestDto>>> getAllBookings() {
+    public ResponseEntity<ApiResponse<List<BookingResponseDto>>> getAllBookings() {
         List<Booking> bookings = bookingRepository.findAll();
-        List<BookingRequestDto> bookingRequestDtos = bookings.stream()
-                .map(bookingMapper::toDto)
+        List<BookingResponseDto> bookingResponseDtos = bookings.stream()
+                .map(bookingMapper::toResponseDto)
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(ApiResponse.success(bookingRequestDtos), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success(bookingResponseDtos), HttpStatus.OK);
     }
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<BookingRequestDto>> getBookingById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<BookingResponseDto>> getBookingById(@PathVariable Integer id) {
         Optional<Booking> booking = bookingRepository.findById(id);
-        if (booking.isPresent()) {
-            BookingRequestDto dto = bookingMapper.toDto(booking.get());
-            return new ResponseEntity<>(ApiResponse.success(dto), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Booking with ID " + id + " not found"), HttpStatus.NOT_FOUND);
+        return booking.map(value -> new ResponseEntity<>(
+                        ApiResponse.success(bookingMapper.toResponseDto(value)), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(
+                        ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Booking with ID " + id + " not found"),
+                        HttpStatus.NOT_FOUND
+                ));
     }
 
-
     @GetMapping("/trip_id/{trip_id}")
-    public ResponseEntity<ApiResponse<List<BookingRequestDto>>> getBookingsByTripId(@PathVariable("trip_id") Integer tripId) {
+    public ResponseEntity<ApiResponse<List<BookingResponseDto>>> getBookingsByTripId(@PathVariable("trip_id") Integer tripId) {
         List<Booking> bookings = bookingRepository.findByTrip_Id(tripId);
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found for trip ID " + tripId), HttpStatus.NOT_FOUND);
         }
-
-        List<BookingRequestDto> bookingRequestDtos = bookings.stream()
-                .map(bookingMapper::toDto)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(ApiResponse.success(bookingRequestDtos), HttpStatus.OK);
+        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).collect(Collectors.toList());
+        return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
-
     @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<BookingRequestDto>>> getBookingsByStatus(@PathVariable("status") String status) {
+    public ResponseEntity<ApiResponse<List<BookingResponseDto>>> getBookingsByStatus(@PathVariable("status") String status) {
         List<Booking> bookings = bookingRepository.findByStatus(status);
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found with status " + status), HttpStatus.NOT_FOUND);
         }
-
-        List<BookingRequestDto> bookingRequestDtos = bookings.stream()
-                .map(bookingMapper::toDto)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(ApiResponse.success(bookingRequestDtos), HttpStatus.OK);
+        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).collect(Collectors.toList());
+        return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
     @GetMapping("/seat/{seatNumber}")
-    public ResponseEntity<ApiResponse<List<BookingRequestDto>>> getBookingsBySeatNumber(@PathVariable("seatNumber") Integer seatNumber) {
+    public ResponseEntity<ApiResponse<List<BookingResponseDto>>> getBookingsBySeatNumber(@PathVariable("seatNumber") Integer seatNumber) {
         List<Booking> bookings = bookingRepository.findBySeatNumber(seatNumber);
         if (bookings.isEmpty()) {
-            return new ResponseEntity<>(
-                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found with seat number " + seatNumber),
-                    HttpStatus.NOT_FOUND
-            );
+            return new ResponseEntity<>(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bookings found with seat number " + seatNumber), HttpStatus.NOT_FOUND);
         }
-
-        List<BookingRequestDto> bookingRequestDtos = bookings.stream()
-                .map(bookingMapper::toDto)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(ApiResponse.success(bookingRequestDtos), HttpStatus.OK);
+        List<BookingResponseDto> dtos = bookings.stream().map(bookingMapper::toResponseDto).collect(Collectors.toList());
+        return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<BookingRequestDto>> addBooking(@Valid @RequestBody BookingRequestDto bookingRequestDto) {
+    public ResponseEntity<ApiResponse<BookingResponseDto>> addBooking(@Valid @RequestBody BookingRequestDto bookingRequestDto) {
         Booking booking = bookingRepository.save(bookingMapper.toEntity(bookingRequestDto));
-        return new ResponseEntity<>(
-                ApiResponse.success(
-                        HttpStatus.CREATED.value(),
-                        "Booking Created",
-                        bookingMapper.toDto(booking)
-                ),
-                HttpStatus.CREATED
-        );
+        return new ResponseEntity<>(ApiResponse.success(HttpStatus.CREATED.value(), "Booking Created", bookingMapper.toResponseDto(booking)), HttpStatus.CREATED);
     }
 
     @PutMapping("/{booking_id}")
-    public ResponseEntity<ApiResponse<BookingRequestDto>> updateBooking(
+    public ResponseEntity<ApiResponse<BookingResponseDto>> updateBooking(
             @PathVariable("booking_id") Integer bookingId,
             @Valid @RequestBody BookingRequestDto bookingRequestDto) {
 
@@ -120,15 +96,8 @@ public class BookingController {
 
         Booking booking = bookingMapper.toEntity(bookingRequestDto);
         booking.setId(bookingId);
-
         Booking updated = bookingRepository.save(booking);
 
-        return ResponseEntity.ok(ApiResponse.success(
-                HttpStatus.OK.value(),
-                "Booking updated successfully",
-                bookingMapper.toDto(updated)
-        ));
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Booking updated successfully", bookingMapper.toResponseDto(updated)));
     }
-
 }
-
