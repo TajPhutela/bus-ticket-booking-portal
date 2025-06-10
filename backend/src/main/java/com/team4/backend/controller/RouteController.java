@@ -5,7 +5,7 @@ import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.dto.response.RouteResponseDto;
 import com.team4.backend.entities.Route;
 import com.team4.backend.mapper.RouteMapper;
-import com.team4.backend.repository.routeRepository;
+import com.team4.backend.repository.RouteRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,16 +18,23 @@ import java.util.Optional;
 @RequestMapping("api/routes")
 public class RouteController {
 
-    private final routeRepository routeRepository;
+    private final RouteRepository routeRepository;
     private final RouteMapper routeMapper;
 
-    public RouteController(routeRepository routeRepository, RouteMapper routeMapper) {
+    public RouteController(RouteRepository routeRepository, RouteMapper routeMapper) {
         this.routeRepository = routeRepository;
         this.routeMapper = routeMapper;
     }
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<RouteResponseDto>> addRoute(@RequestBody RouteRequestDto routeRequestDto) {
+        if (routeRequestDto.id() != null && routeRepository.existsById(routeRequestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Route with ID " + routeRequestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         Route savedRoute = routeRepository.save(routeMapper.toEntity(routeRequestDto));
         return new ResponseEntity<>(
                 ApiResponse.success(HttpStatus.CREATED.value(), "Route created", routeMapper.toResponseDto(savedRoute)),
@@ -83,9 +90,7 @@ public class RouteController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RouteResponseDto>> updateRoute(@PathVariable("id") Integer routeId,
                                                                      @Valid @RequestBody RouteRequestDto routeRequestDto) {
-        Optional<Route> existingRouteOpt = routeRepository.findById(routeId);
-
-        if (existingRouteOpt.isEmpty()) {
+        if (!routeRepository.existsById(routeId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(404, "Route not found."));
         }

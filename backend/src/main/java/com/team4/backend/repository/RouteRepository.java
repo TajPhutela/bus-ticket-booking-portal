@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface routeRepository extends JpaRepository<Route,Integer> {
+public interface RouteRepository extends JpaRepository<Route,Integer> {
     List<Route> findByFromCity(String fromCity);
 
     List<Route> findByToCity(String toCity);

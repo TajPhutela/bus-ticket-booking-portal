@@ -5,7 +5,7 @@ import com.team4.backend.entities.Driver;
 import com.team4.backend.entities.Route;
 import com.team4.backend.repository.BusRepository;
 import com.team4.backend.repository.DriverRepository;
-import com.team4.backend.repository.routeRepository;
+import com.team4.backend.repository.RouteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TripMapperHelper {
 
-    private final routeRepository routeRepository;
+    private final RouteRepository routeRepository;
     private final BusRepository busRepository;
     private final DriverRepository driverRepository;
 
-    public TripMapperHelper(routeRepository routeRepository, BusRepository busRepository, DriverRepository driverRepository) {
+    public TripMapperHelper(RouteRepository routeRepository, BusRepository busRepository, DriverRepository driverRepository) {
         this.routeRepository = routeRepository;
         this.busRepository = busRepository;
         this.driverRepository = driverRepository;

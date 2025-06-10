@@ -30,6 +30,13 @@ public class PaymentController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<PaymentResponseDto>> addPayment(@Valid @RequestBody PaymentRequestDto paymentRequestDto) {
+        if (paymentRequestDto.id() != null && paymentRepository.existsById(paymentRequestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Payment with ID " + paymentRequestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         Payment payment = paymentRepository.save(paymentMapper.toEntity(paymentRequestDto));
         return new ResponseEntity<>(
                 ApiResponse.success(HttpStatus.CREATED.value(), "Payment Created", paymentMapper.toResponseDto(payment)),

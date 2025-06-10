@@ -80,6 +80,13 @@ public class BookingController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<BookingResponseDto>> addBooking(@Valid @RequestBody BookingRequestDto bookingRequestDto) {
+        if (bookingRequestDto.id() != null && bookingRepository.existsById(bookingRequestDto.id())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Booking with ID " + bookingRequestDto.id() + " already exists"),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         Booking booking = bookingRepository.save(bookingMapper.toEntity(bookingRequestDto));
         return new ResponseEntity<>(ApiResponse.success(HttpStatus.CREATED.value(), "Booking Created", bookingMapper.toResponseDto(booking)), HttpStatus.CREATED);
     }
