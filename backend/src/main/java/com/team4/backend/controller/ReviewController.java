@@ -7,7 +7,6 @@ import com.team4.backend.entities.Review;
 import com.team4.backend.mapper.ReviewMapper;
 import com.team4.backend.repository.ReviewRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,24 +14,25 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/reviews")
 public class ReviewController {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
-    @Autowired
-    private ReviewMapper reviewMapper;
+    public ReviewController(ReviewRepository reviewRepository, ReviewMapper reviewMapper) {
+        this.reviewRepository = reviewRepository;
+        this.reviewMapper = reviewMapper;
+    }
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getAllReviews() {
         List<ReviewResponseDto> dtos = reviewRepository.findAll()
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
@@ -45,21 +45,21 @@ public class ReviewController {
                         HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/tripid/{trip_id}")
+    @GetMapping("/tripId/{trip_id}")
     public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getReviewsByTripId(@PathVariable("trip_id") Integer tripId) {
         List<ReviewResponseDto> dtos = reviewRepository.findByTripId(tripId)
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
-    @GetMapping("/customerid/{customer_id}")
+    @GetMapping("/customerId/{customer_id}")
     public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getReviewsByCustomerId(@PathVariable("customer_id") Integer customerId) {
         List<ReviewResponseDto> dtos = reviewRepository.findByCustomerId(customerId)
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
@@ -68,7 +68,7 @@ public class ReviewController {
         List<ReviewResponseDto> dtos = reviewRepository.findByRating(rating)
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
@@ -77,7 +77,7 @@ public class ReviewController {
         List<ReviewResponseDto> dtos = reviewRepository.findByRatingGreaterThan(rating)
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
@@ -86,7 +86,7 @@ public class ReviewController {
         List<ReviewResponseDto> dtos = reviewRepository.findByRatingLessThan(rating)
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
@@ -97,7 +97,7 @@ public class ReviewController {
         List<ReviewResponseDto> dtos = reviewRepository.findByCustomerIdAndTripId(customerId, tripId)
                 .stream()
                 .map(reviewMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
@@ -108,7 +108,7 @@ public class ReviewController {
             List<ReviewResponseDto> dtos = reviewRepository.findByReviewDate(reviewDate)
                     .stream()
                     .map(reviewMapper::toResponseDto)
-                    .collect(Collectors.toList());
+                    .toList();
             return ResponseEntity.ok(ApiResponse.success(dtos));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "Invalid date format: " + reviewDateStr));

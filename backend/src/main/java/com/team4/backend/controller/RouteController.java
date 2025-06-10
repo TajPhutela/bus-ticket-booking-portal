@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/routes")
@@ -55,21 +54,21 @@ public class RouteController {
                 .orElseGet(() -> new ResponseEntity<>(ApiResponse.error(404, "Route not found"), HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/fromcity/{from_city}")
-    public ResponseEntity<ApiResponse<List<RouteResponseDto>>> getRoutesByFromCity(@PathVariable String from_city) {
-        List<Route> routes = routeRepository.findByFromCity(from_city);
+    @GetMapping("/fromCity/{from_city}")
+    public ResponseEntity<ApiResponse<List<RouteResponseDto>>> getRoutesByFromCity(@PathVariable("from_city") String fromCity) {
+        List<Route> routes = routeRepository.findByFromCity(fromCity);
         if (routes.isEmpty()) {
-            return new ResponseEntity<>(ApiResponse.error(404, "No routes from " + from_city), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiResponse.error(404, "No routes from " + fromCity), HttpStatus.NOT_FOUND);
         }
         List<RouteResponseDto> dtos = routes.stream().map(routeMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
-    @GetMapping("/tocity/{to_city}")
-    public ResponseEntity<ApiResponse<List<RouteResponseDto>>> getRoutesByToCity(@PathVariable String to_city) {
-        List<Route> routes = routeRepository.findByToCity(to_city);
+    @GetMapping("/toCity/{to_city}")
+    public ResponseEntity<ApiResponse<List<RouteResponseDto>>> getRoutesByToCity(@PathVariable("to_city") String toCity) {
+        List<Route> routes = routeRepository.findByToCity(toCity);
         if (routes.isEmpty()) {
-            return new ResponseEntity<>(ApiResponse.error(404, "No routes to " + to_city), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiResponse.error(404, "No routes to " + toCity), HttpStatus.NOT_FOUND);
         }
         List<RouteResponseDto> dtos = routes.stream().map(routeMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));
@@ -77,11 +76,11 @@ public class RouteController {
 
     @GetMapping("/{from_city}/{to_city}")
     public ResponseEntity<ApiResponse<List<RouteResponseDto>>> getRoutesByFromAndTo(
-            @PathVariable String from_city,
-            @PathVariable String to_city) {
-        List<Route> routes = routeRepository.findByFromCityAndToCity(from_city, to_city);
+            @PathVariable("from_city") String fromCity,
+            @PathVariable("to_city") String toCity) {
+        List<Route> routes = routeRepository.findByFromCityAndToCity(fromCity, toCity);
         if (routes.isEmpty()) {
-            return new ResponseEntity<>(ApiResponse.error(404, "No routes found from " + from_city + " to " + to_city), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ApiResponse.error(404, "No routes found from " + fromCity + " to " + toCity), HttpStatus.NOT_FOUND);
         }
         List<RouteResponseDto> dtos = routes.stream().map(routeMapper::toResponseDto).toList();
         return ResponseEntity.ok(ApiResponse.success(dtos));

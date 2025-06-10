@@ -12,7 +12,6 @@ import com.team4.backend.mapper.AgencyOfficeMapper;
 import com.team4.backend.repository.AgencyOfficeRepository;
 import com.team4.backend.repository.AgencyRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,17 +23,17 @@ import java.util.Optional;
 @RequestMapping("/api/agencies")
 public class AgencyController {
 
-    @Autowired
-    private AgencyRepository agencyRepository;
+    private final AgencyRepository agencyRepository;
+    private final AgencyOfficeRepository agencyOfficeRepository;
+    private final AgencyMapper agencyMapper;
+    private final AgencyOfficeMapper agencyOfficeMapper;
 
-    @Autowired
-    private AgencyOfficeRepository agencyOfficeRepository;
-
-    @Autowired
-    private AgencyMapper agencyMapper;
-
-    @Autowired
-    private AgencyOfficeMapper agencyOfficeMapper;
+    public AgencyController(AgencyRepository agencyRepository, AgencyOfficeRepository agencyOfficeRepository, AgencyMapper agencyMapper, AgencyOfficeMapper agencyOfficeMapper) {
+        this.agencyRepository = agencyRepository;
+        this.agencyOfficeRepository = agencyOfficeRepository;
+        this.agencyMapper = agencyMapper;
+        this.agencyOfficeMapper = agencyOfficeMapper;
+    }
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<AgencyResponseDto>>> getAllAgencies() {

@@ -7,30 +7,30 @@ import com.team4.backend.entities.Address;
 import com.team4.backend.mapper.AddressMapper;
 import com.team4.backend.repository.AddressRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/address")
 public class AddressController {
 
-    @Autowired
-    private AddressRepository addressRepository;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
-    @Autowired
-    private AddressMapper addressMapper;
+    public AddressController(AddressRepository addressRepository, AddressMapper addressMapper) {
+        this.addressRepository = addressRepository;
+        this.addressMapper = addressMapper;
+    }
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<AddressResponseDto>> createAddress(@Valid @RequestBody AddressRequestDto addressRequestDto) {
         if (addressRequestDto.id() != null && addressRepository.existsById(addressRequestDto.id())) {
             return new ResponseEntity<>(
-                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Address with ID " + addressRequestDto.id() + " already exists"),
+                    ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "Address with Id " + addressRequestDto.id() + " already exists"),
                     HttpStatus.BAD_REQUEST
             );
         }
@@ -50,7 +50,7 @@ public class AddressController {
     public ResponseEntity<ApiResponse<AddressResponseDto>> updateAddress(@PathVariable Integer id, @Valid @RequestBody AddressRequestDto addressRequestDto) {
         if (!addressRepository.existsById(id)) {
             return new ResponseEntity<>(
-                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Address with ID " + id + " not found"),
+                    ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Address not found"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -70,7 +70,7 @@ public class AddressController {
         List<Address> addresses = addressRepository.findAll();
         List<AddressResponseDto> dtos = addresses.stream()
                 .map(addressMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
@@ -94,7 +94,7 @@ public class AddressController {
                     HttpStatus.NOT_FOUND.value(),
                     "No addresses found in city: " + city), HttpStatus.NOT_FOUND);
         }
-        List<AddressResponseDto> dtos = addresses.stream().map(addressMapper::toResponseDto).collect(Collectors.toList());
+        List<AddressResponseDto> dtos = addresses.stream().map(addressMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
@@ -106,7 +106,7 @@ public class AddressController {
                     HttpStatus.NOT_FOUND.value(),
                     "No addresses found in state: " + state), HttpStatus.NOT_FOUND);
         }
-        List<AddressResponseDto> dtos = addresses.stream().map(addressMapper::toResponseDto).collect(Collectors.toList());
+        List<AddressResponseDto> dtos = addresses.stream().map(addressMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 
@@ -118,7 +118,7 @@ public class AddressController {
                     HttpStatus.NOT_FOUND.value(),
                     "No addresses found with zip code: " + zipCode), HttpStatus.NOT_FOUND);
         }
-        List<AddressResponseDto> dtos = addresses.stream().map(addressMapper::toResponseDto).collect(Collectors.toList());
+        List<AddressResponseDto> dtos = addresses.stream().map(addressMapper::toResponseDto).toList();
         return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
     }
 }

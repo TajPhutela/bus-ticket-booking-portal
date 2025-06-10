@@ -7,7 +7,6 @@ import com.team4.backend.entities.Customer;
 import com.team4.backend.mapper.CustomerMapper;
 import com.team4.backend.repository.CustomerRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +18,13 @@ import java.util.Optional;
 @RequestMapping("api/customers")
 public class CustomerController {
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
-    @Autowired
-    private CustomerMapper customerMapper;
+    public CustomerController(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+        this.customerRepository = customerRepository;
+        this.customerMapper = customerMapper;
+    }
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<CustomerResponseDto>>> getAllCustomers() {
@@ -35,14 +36,14 @@ public class CustomerController {
     }
 
     @GetMapping("/{customer_id}")
-    public ResponseEntity<ApiResponse<CustomerResponseDto>> getCustomerById(@PathVariable("customer_id") int customer_id) {
-        Optional<Customer> customer = customerRepository.findById(customer_id);
+    public ResponseEntity<ApiResponse<CustomerResponseDto>> getCustomerById(@PathVariable("customer_id") int customerId) {
+        Optional<Customer> customer = customerRepository.findById(customerId);
         if (customer.isPresent()) {
             CustomerResponseDto dto = customerMapper.toResponseDto(customer.get());
             return ResponseEntity.ok(ApiResponse.success(dto));
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customer with ID " + customer_id + " not found"));
+                .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customer with ID " + customerId + " not found"));
     }
 
     @GetMapping("/name/{name}")
@@ -82,12 +83,12 @@ public class CustomerController {
     }
 
     @GetMapping("/addressId/{address_id}")
-    public ResponseEntity<ApiResponse<List<CustomerResponseDto>>> getCustomerByAddress(@PathVariable int address_id) {
-        List<Customer> customers = customerRepository.findByAddress_Id(address_id);
+    public ResponseEntity<ApiResponse<List<CustomerResponseDto>>> getCustomerByAddress(@PathVariable("address_id") int addressId) {
+        List<Customer> customers = customerRepository.findByAddress_Id(addressId);
 
         if (customers.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customers with Address ID " + address_id + " not found"));
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "Customers with Address ID " + addressId + " not found"));
         }
 
         List<CustomerResponseDto> dtos = customers.stream().map(customerMapper::toResponseDto).toList();
