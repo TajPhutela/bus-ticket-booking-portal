@@ -1,15 +1,28 @@
 package com.team4.backend.mapper;
 
+import com.team4.backend.dto.request.CustomerRequestDto;
+import com.team4.backend.dto.response.CustomerResponseDto;
 import com.team4.backend.entities.Customer;
-import com.team4.backend.dto.CustomerDto;
+import com.team4.backend.mapper.helper.CustomerMapperHelper;
 import org.mapstruct.*;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {CustomerMapperHelper.class,
+                AddressMapper.class},
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
 public interface CustomerMapper {
-    Customer toEntity(CustomerDto customerDto);
 
-    CustomerDto toDto(Customer customer);
+    @Mapping(source = "addressId", target = "address", qualifiedByName = "addressFromId")
+    Customer toEntity(CustomerRequestDto customerRequestDto);
+
+    @Mapping(source = "address.id", target = "addressId")
+    CustomerRequestDto toDto(Customer customer);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Customer partialUpdate(CustomerDto customerDto, @MappingTarget Customer customer);
+    @Mapping(source = "addressId", target = "address", qualifiedByName = "addressFromId")
+    Customer partialUpdate(CustomerRequestDto customerRequestDto, @MappingTarget Customer customer);
+
+    CustomerResponseDto toResponseDto(Customer customer);
 }

@@ -18,7 +18,7 @@ public class Payment {
     private Integer id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
