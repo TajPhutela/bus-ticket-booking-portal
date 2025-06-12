@@ -4,11 +4,15 @@ import com.team4.backend.dto.response.BusTypeCountDto;
 import com.team4.backend.dto.request.BusRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.dto.response.BusResponseDto;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.entities.Bus;
 import com.team4.backend.mapper.BusMapper;
 import com.team4.backend.repository.BusRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,13 +36,30 @@ public class BusController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<BusResponseDto>>> getAllBusesDetails() {
-        List<Bus> buses = busRepository.findAll();
-        List<BusResponseDto> busResponseDtos = buses.stream()
+    public ResponseEntity<ApiResponse<PagedResponse<BusResponseDto>>> getAllBusesDetails(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Bus> busPage = busRepository.findAll(pageable);
+
+        List<BusResponseDto> busResponseDtos = busPage.getContent()
+                .stream()
                 .map(busMapper::toResponseDto)
                 .toList();
-        return ResponseEntity.ok(ApiResponse.success(busResponseDtos));
+
+        PagedResponse<BusResponseDto> pagedResponse = new PagedResponse<>(
+                busResponseDtos,
+                busPage.getNumber(),
+                busPage.getSize(),
+                busPage.getTotalElements(),
+                busPage.getTotalPages(),
+                busPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
 
     @GetMapping("/id/{busId}")
     public ResponseEntity<ApiResponse<BusResponseDto>> getBusById(@PathVariable int busId) {
