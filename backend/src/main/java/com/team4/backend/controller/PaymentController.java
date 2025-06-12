@@ -2,11 +2,15 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.PaymentRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.dto.response.PaymentResponseDto;
 import com.team4.backend.entities.Payment;
 import com.team4.backend.mapper.PaymentMapper;
 import com.team4.backend.repository.PaymentRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/payment")
+@RequestMapping("api/payments")
 public class PaymentController {
 
     private final PaymentRepository paymentRepository;
@@ -65,14 +69,27 @@ public class PaymentController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<PaymentResponseDto>>> getAllPayments() {
-        List<Payment> payments = paymentRepository.findAll();
-        List<PaymentResponseDto> responseDtos = payments.stream()
+    public ResponseEntity<ApiResponse<PagedResponse<PaymentResponseDto>>> getAllPayments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Payment> paymentPage = paymentRepository.findAll(pageable);
+
+        List<PaymentResponseDto> responseDtos = paymentPage.getContent()
+                .stream()
                 .map(paymentMapper::toResponseDto)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(responseDtos));
+        PagedResponse<PaymentResponseDto> paged = new PagedResponse<>(
+                responseDtos, page, size, paymentPage.getTotalElements(),
+                paymentPage.getTotalPages(), paymentPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(paged));
     }
+
+
 
     @GetMapping("/{payment_id}")
     public ResponseEntity<ApiResponse<PaymentResponseDto>> getPaymentById(@PathVariable("payment_id") Integer paymentId) {

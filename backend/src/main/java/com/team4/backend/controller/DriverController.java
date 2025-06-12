@@ -3,9 +3,13 @@ package com.team4.backend.controller;
 import com.team4.backend.dto.request.DriverRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.dto.response.DriverResponseDto;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.entities.Driver;
 import com.team4.backend.mapper.DriverMapper;
 import com.team4.backend.repository.DriverRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +29,30 @@ public class DriverController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<DriverResponseDto>>> getAllDrivers() {
-        List<DriverResponseDto> driverDtos = driverRepository.findAll()
-                .stream().map(driverMapper::toResponseDto).toList();
-        return ResponseEntity.ok(ApiResponse.success(driverDtos));
+    public ResponseEntity<ApiResponse<PagedResponse<DriverResponseDto>>> getAllDrivers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Driver> driverPage = driverRepository.findAll(pageable);
+
+        List<DriverResponseDto> driverDtos = driverPage.getContent()
+                .stream()
+                .map(driverMapper::toResponseDto)
+                .toList();
+
+        PagedResponse<DriverResponseDto> pagedResponse = new PagedResponse<>(
+                driverDtos,
+                driverPage.getNumber(),
+                driverPage.getSize(),
+                driverPage.getTotalElements(),
+                driverPage.getTotalPages(),
+                driverPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
 
     @GetMapping("/id/{driver_id}")
     public ResponseEntity<ApiResponse<DriverResponseDto>> getDriverById(@PathVariable("driver_id") int driverId) {

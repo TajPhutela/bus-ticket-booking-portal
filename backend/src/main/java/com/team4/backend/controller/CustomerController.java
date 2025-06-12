@@ -3,10 +3,14 @@ package com.team4.backend.controller;
 import com.team4.backend.dto.request.CustomerRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.dto.response.CustomerResponseDto;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.entities.Customer;
 import com.team4.backend.mapper.CustomerMapper;
 import com.team4.backend.repository.CustomerRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +31,30 @@ public class CustomerController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<CustomerResponseDto>>> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
-        List<CustomerResponseDto> dtos = customers.stream()
+    public ResponseEntity<ApiResponse<PagedResponse<CustomerResponseDto>>> getAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Customer> customerPage = customerRepository.findAll(pageable);
+
+        List<CustomerResponseDto> dtos = customerPage.getContent()
+                .stream()
                 .map(customerMapper::toResponseDto)
                 .toList();
-        return ResponseEntity.ok(ApiResponse.success(dtos));
+
+        PagedResponse<CustomerResponseDto> pagedResponse = new PagedResponse<>(
+                dtos,
+                customerPage.getNumber(),
+                customerPage.getSize(),
+                customerPage.getTotalElements(),
+                customerPage.getTotalPages(),
+                customerPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
 
     @GetMapping("/{customer_id}")
     public ResponseEntity<ApiResponse<CustomerResponseDto>> getCustomerById(@PathVariable("customer_id") int customerId) {

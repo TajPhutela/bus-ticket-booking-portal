@@ -5,6 +5,7 @@ import com.team4.backend.dto.request.AgencyRequestDto;
 import com.team4.backend.dto.response.AgencyOfficeResponseDto;
 import com.team4.backend.dto.response.AgencyResponseDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.entities.Agency;
 import com.team4.backend.entities.AgencyOffice;
 import com.team4.backend.mapper.AgencyMapper;
@@ -12,6 +13,9 @@ import com.team4.backend.mapper.AgencyOfficeMapper;
 import com.team4.backend.repository.AgencyOfficeRepository;
 import com.team4.backend.repository.AgencyRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,15 +40,36 @@ public class AgencyController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<AgencyResponseDto>>> getAllAgencies() {
-        List<Agency> agencies = agencyRepository.findAll();
-        if (agencies.isEmpty()) {
+    public ResponseEntity<ApiResponse<PagedResponse<AgencyResponseDto>>> getAllAgencies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Agency> agencyPage = agencyRepository.findAll(pageable);
+
+        List<AgencyResponseDto> dtoList = agencyPage.getContent()
+                .stream()
+                .map(agencyMapper::toResponseDto)
+                .toList();
+
+        if (dtoList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No agencies found"));
         }
-        List<AgencyResponseDto> dtoList = agencies.stream().map(agencyMapper::toResponseDto).toList();
-        return ResponseEntity.ok(ApiResponse.success(dtoList));
+
+        PagedResponse<AgencyResponseDto> pagedResponse = new PagedResponse<>(
+                dtoList,
+                agencyPage.getNumber(),
+                agencyPage.getSize(),
+                agencyPage.getTotalElements(),
+                agencyPage.getTotalPages(),
+                agencyPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<AgencyResponseDto>> getAgencyById(@PathVariable("id") Integer agencyId) {
@@ -57,15 +82,35 @@ public class AgencyController {
     }
 
     @GetMapping("/offices")
-    public ResponseEntity<ApiResponse<List<AgencyOfficeResponseDto>>> getOffices() {
-        List<AgencyOffice> offices = agencyOfficeRepository.findAll();
-        if (offices.isEmpty()) {
+    public ResponseEntity<ApiResponse<PagedResponse<AgencyOfficeResponseDto>>> getOffices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AgencyOffice> officePage = agencyOfficeRepository.findAll(pageable);
+
+        List<AgencyOfficeResponseDto> dtoList = officePage.getContent()
+                .stream()
+                .map(agencyOfficeMapper::toResponseDto)
+                .toList();
+
+        if (dtoList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No agency offices found"));
         }
-        List<AgencyOfficeResponseDto> dtoList = offices.stream().map(agencyOfficeMapper::toResponseDto).toList();
-        return ResponseEntity.ok(ApiResponse.success(dtoList));
+
+        PagedResponse<AgencyOfficeResponseDto> pagedResponse = new PagedResponse<>(
+                dtoList,
+                officePage.getNumber(),
+                officePage.getSize(),
+                officePage.getTotalElements(),
+                officePage.getTotalPages(),
+                officePage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
 
     @GetMapping("/offices/agency_id/{agency}")
     public ResponseEntity<ApiResponse<List<AgencyOfficeResponseDto>>> getOfficesByAgencyId(@PathVariable("agency") Integer agencyId) {

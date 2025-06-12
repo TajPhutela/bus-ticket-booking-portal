@@ -3,10 +3,14 @@ package com.team4.backend.controller;
 import com.team4.backend.dto.request.AddressRequestDto;
 import com.team4.backend.dto.response.AddressResponseDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.entities.Address;
 import com.team4.backend.mapper.AddressMapper;
 import com.team4.backend.repository.AddressRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,13 +70,30 @@ public class AddressController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<AddressResponseDto>>> getAllAddresses() {
-        List<Address> addresses = addressRepository.findAll();
-        List<AddressResponseDto> dtos = addresses.stream()
+    public ResponseEntity<ApiResponse<PagedResponse<AddressResponseDto>>> getAllAddresses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Address> addressPage = addressRepository.findAll(pageable);
+
+        List<AddressResponseDto> dtos = addressPage.getContent()
+                .stream()
                 .map(addressMapper::toResponseDto)
                 .toList();
-        return new ResponseEntity<>(ApiResponse.success(dtos), HttpStatus.OK);
+
+        PagedResponse<AddressResponseDto> pagedResponse = new PagedResponse<>(
+                dtos,
+                addressPage.getNumber(),
+                addressPage.getSize(),
+                addressPage.getTotalElements(),
+                addressPage.getTotalPages(),
+                addressPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
 
     @GetMapping("/{address_id}")
     public ResponseEntity<ApiResponse<AddressResponseDto>> getAddressById(@PathVariable("address_id") Integer addressId) {

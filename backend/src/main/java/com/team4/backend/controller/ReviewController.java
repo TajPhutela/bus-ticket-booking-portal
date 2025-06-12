@@ -2,11 +2,15 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.ReviewRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.dto.response.ReviewResponseDto;
 import com.team4.backend.entities.Review;
 import com.team4.backend.mapper.ReviewMapper;
 import com.team4.backend.repository.ReviewRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +32,26 @@ public class ReviewController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getAllReviews() {
-        List<ReviewResponseDto> dtos = reviewRepository.findAll()
+    public ResponseEntity<ApiResponse<PagedResponse<ReviewResponseDto>>> getAllReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Review> reviewPage = reviewRepository.findAll(pageable);
+
+        List<ReviewResponseDto> dtos = reviewPage.getContent()
                 .stream()
                 .map(reviewMapper::toResponseDto)
                 .toList();
-        return ResponseEntity.ok(ApiResponse.success(dtos));
+
+        PagedResponse<ReviewResponseDto> paged = new PagedResponse<>(
+                dtos, page, size, reviewPage.getTotalElements(),
+                reviewPage.getTotalPages(), reviewPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(paged));
     }
+
 
     @GetMapping("/{review_id}")
     public ResponseEntity<ApiResponse<ReviewResponseDto>> getReviewById(@PathVariable("review_id") int reviewId) {
