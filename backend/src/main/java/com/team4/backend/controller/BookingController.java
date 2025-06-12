@@ -2,12 +2,16 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.BookingRequestDto;
 import com.team4.backend.dto.response.BookingResponseDto;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.entities.Booking;
 import com.team4.backend.mapper.BookingMapper;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.repository.BookingRepository;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,14 +32,30 @@ public class BookingController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<BookingResponseDto>>> getAllBookings() {
-        List<Booking> bookings = bookingRepository.findAll();
-        List<BookingResponseDto> bookingResponseDtos = bookings.stream()
+    public ResponseEntity<ApiResponse<PagedResponse<BookingResponseDto>>> getAllBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Booking> bookingPage = bookingRepository.findAll(pageable);
+
+        List<BookingResponseDto> bookingResponseDtos = bookingPage.getContent()
+                .stream()
                 .map(bookingMapper::toResponseDto)
                 .toList();
 
-        return new ResponseEntity<>(ApiResponse.success(bookingResponseDtos), HttpStatus.OK);
+        PagedResponse<BookingResponseDto> pagedResponse = new PagedResponse<>(
+                bookingResponseDtos,
+                bookingPage.getNumber(),
+                bookingPage.getSize(),
+                bookingPage.getTotalElements(),
+                bookingPage.getTotalPages(),
+                bookingPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BookingResponseDto>> getBookingById(@PathVariable Integer id) {

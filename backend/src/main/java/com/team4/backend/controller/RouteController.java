@@ -2,11 +2,15 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.RouteRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.dto.response.RouteResponseDto;
 import com.team4.backend.entities.Route;
 import com.team4.backend.mapper.RouteMapper;
 import com.team4.backend.repository.RouteRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,11 +45,26 @@ public class RouteController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<RouteResponseDto>>> getAllRoutes() {
-        List<RouteResponseDto> dtos = routeRepository.findAll()
-                .stream().map(routeMapper::toResponseDto).toList();
-        return ResponseEntity.ok(ApiResponse.success(dtos));
+    public ResponseEntity<ApiResponse<PagedResponse<RouteResponseDto>>> getAllRoutes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Route> routePage = routeRepository.findAll(pageable);
+
+        List<RouteResponseDto> dtos = routePage.getContent()
+                .stream()
+                .map(routeMapper::toResponseDto)
+                .toList();
+
+        PagedResponse<RouteResponseDto> paged = new PagedResponse<>(
+                dtos, page, size, routePage.getTotalElements(),
+                routePage.getTotalPages(), routePage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(paged));
     }
+
 
     @GetMapping("/{route_id}")
     public ResponseEntity<ApiResponse<RouteResponseDto>> getRouteById(@PathVariable("route_id") int routeId) {

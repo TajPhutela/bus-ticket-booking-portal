@@ -2,11 +2,15 @@ package com.team4.backend.controller;
 
 import com.team4.backend.dto.request.TripRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
+import com.team4.backend.dto.response.PagedResponse;
 import com.team4.backend.dto.response.TripResponseDto;
 import com.team4.backend.entities.Trip;
 import com.team4.backend.mapper.TripMapper;
 import com.team4.backend.repository.TripRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +32,24 @@ public class TripController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<List<TripResponseDto>>> getAllTrips() {
-        List<Trip> trips = tripRepository.findAll();
+    public ResponseEntity<ApiResponse<PagedResponse<TripResponseDto>>> getAllTrips(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        List<TripResponseDto> tripResponseDtos = trips.stream().map(tripMapper::toResponseDto).toList();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Trip> tripPage = tripRepository.findAll(pageable);
 
-        return new ResponseEntity<>(ApiResponse.success(tripResponseDtos), HttpStatus.OK);
+        List<TripResponseDto> tripResponseDtos = tripPage.getContent()
+                .stream()
+                .map(tripMapper::toResponseDto)
+                .toList();
+
+        PagedResponse<TripResponseDto> paged = new PagedResponse<>(
+                tripResponseDtos, page, size, tripPage.getTotalElements(),
+                tripPage.getTotalPages(), tripPage.isLast()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(paged));
     }
 
     @GetMapping("/{id}")
