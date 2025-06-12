@@ -1,6 +1,5 @@
 package com.team4.backend.dto.response;
 
-import com.team4.backend.entities.Agency;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;

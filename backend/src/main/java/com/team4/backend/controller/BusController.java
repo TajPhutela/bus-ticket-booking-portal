@@ -1,5 +1,6 @@
 package com.team4.backend.controller;
 
+import com.team4.backend.dto.response.BusTypeCountDto;
 import com.team4.backend.dto.request.BusRequestDto;
 import com.team4.backend.dto.response.ApiResponse;
 import com.team4.backend.dto.response.BusResponseDto;
@@ -8,23 +9,27 @@ import com.team4.backend.mapper.BusMapper;
 import com.team4.backend.repository.BusRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/buses")
 public class BusController {
 
-    @Autowired
-    private BusRepository busRepository;
+    private final BusRepository busRepository;
+    private final BusMapper busMapper;
 
-    @Autowired
-    private BusMapper busMapper;
+    public BusController(BusRepository busRepository, BusMapper busMapper) {
+        this.busRepository = busRepository;
+        this.busMapper = busMapper;
+    }
 
     @GetMapping()
     public ResponseEntity<ApiResponse<List<BusResponseDto>>> getAllBusesDetails() {
@@ -128,5 +133,42 @@ public class BusController {
         Bus saved = busRepository.save(updatedBus);
 
         return ResponseEntity.ok(ApiResponse.success(busMapper.toResponseDto(saved)));
+    }
+
+    /*
+    @GetMapping("/type-counts_1")
+    public ResponseEntity<List<BusTypeCountDto>> getBusTypeCountss() {
+        // Step 1: Get counts per type
+        List<BusTypeCountDto> groupedCounts = busRepository.getBusCountsGroupedByType();
+
+        return new ResponseEntity<>(groupedCounts, HttpStatus.OK);
+    }*/
+    @GetMapping("/type-counts")
+    public ResponseEntity<ApiResponse<List<BusTypeCountDto>>> getBusTypeCounts() {
+        // get counts per type
+        List<BusTypeCountDto> groupedCounts = busRepository.getBusCountsGroupedByType();
+
+        if (groupedCounts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), "No bus types found"));
+        }
+
+        //for each type, fetch the list of buses and map to BusRequestDto
+        for (BusTypeCountDto dto : groupedCounts) {
+            List<BusRequestDto> busList = busRepository.findByType(dto.getType()).stream()
+                    .map(
+                            bus -> new BusRequestDto(
+                                    bus.getId(),
+                                    bus.getRegistrationNumber(),
+                                    bus.getCapacity(),
+                                    bus.getType(),
+                                    bus.getOffice().getId()
+                            )
+                    ).toList();
+
+            dto.setResult(busList);
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(groupedCounts));
     }
 }
